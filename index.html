@@ -307,27 +307,49 @@
           </button>
         </div>
 
-        <!-- FORM 1: Tra cứu theo Họ và Tên AM + MÃ PIN CÁ NHÂN BẢO MẬT -->
-        <form id="form-login-name" onsubmit="handleNameLogin(event)" class="space-y-4">
+        <!-- FORM 1: Tra cứu theo 3 TIÊU CHÍ (Mã NV ID + Họ Tên + Email Công Ty) + MÃ PIN BẢO MẬT -->
+        <form id="form-login-name" onsubmit="handleNameLogin(event)" class="space-y-3.5">
           <div class="p-3 rounded-xl bg-emerald-950/50 border border-emerald-800/60 text-xs text-emerald-300 leading-relaxed">
             <div class="font-bold flex items-center gap-1.5 text-emerald-200 mb-0.5">
               <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i>
-              Bảo Mật Bảng Lương Cá Nhân Bằng Mã PIN Riêng:
+              Xác Thực 3 Yếu Tố Bảo Mật Bảng Lương Cá Nhân:
             </div>
-            Bảo vệ độc quyền bằng <strong>Mã PIN bí mật (4-6 số)</strong>. Tuyệt đối không ai khác có thể xem lén được số liệu và thu nhập của bạn.
+            Bắt buộc nhập chính xác <strong>Mã NV (ID) + Họ Tên + Email công ty (@ghn.vn)</strong> để xác minh danh tính và tạo/nhập Mã PIN riêng.
           </div>
 
-          <!-- Step 1: AM Name Selection / Input -->
+          <!-- Step 1: AM ID / Employee Code -->
           <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1.5">
-              <span>1. Họ và tên của bạn:</span>
+            <label class="block text-xs font-semibold text-slate-300 mb-1 flex items-center justify-between">
+              <span>1. Mã Nhân Viên (Mã AM):</span>
+              <span class="text-[10px] text-amber-400 font-medium">* Bắt buộc</span>
+            </label>
+            <div class="relative">
+              <i data-lucide="badge-check" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+              <input type="text" id="login-am-id" inputmode="numeric" required placeholder="Nhập mã NV của bạn (VD: 3116636)..." oninput="checkAmPinStatus()" onchange="checkAmPinStatus()" class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-800/90 border border-slate-700 text-white text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none transition font-mono">
+            </div>
+          </div>
+
+          <!-- Step 2: AM Full Name -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1 flex items-center justify-between">
+              <span>2. Họ và tên của bạn:</span>
+              <span class="text-[10px] text-amber-400 font-medium">* Bắt buộc</span>
             </label>
             <div class="relative">
               <i data-lucide="user" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
-              <input type="text" id="login-am-name" list="am-names-datalist" required placeholder="Nhập hoặc chọn họ và tên của bạn..." oninput="checkAmPinStatus()" onchange="checkAmPinStatus()" class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-800/90 border border-slate-700 text-white text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none transition">
-              <datalist id="am-names-datalist">
-                <!-- Populated by JS -->
-              </datalist>
+              <input type="text" id="login-am-name" required placeholder="Nhập chính xác họ và tên của bạn..." oninput="checkAmPinStatus()" onchange="checkAmPinStatus()" class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-800/90 border border-slate-700 text-white text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none transition">
+            </div>
+          </div>
+
+          <!-- Step 3: Company Email (@ghn.vn) -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1 flex items-center justify-between">
+              <span>3. Email công ty (@ghn.vn):</span>
+              <span class="text-[10px] text-amber-400 font-medium">* Bắt buộc</span>
+            </label>
+            <div class="relative">
+              <i data-lucide="mail" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+              <input type="text" id="login-am-email" required placeholder="Nhập email công ty (VD: trungdn@ghn.vn)..." oninput="checkAmPinStatus()" onchange="checkAmPinStatus()" class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-800/90 border border-slate-700 text-white text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none transition font-mono">
             </div>
           </div>
 
@@ -339,7 +361,7 @@
               <div class="flex items-center justify-between">
                 <label class="block text-xs font-semibold text-slate-300 flex items-center gap-1">
                   <i data-lucide="key-round" class="w-3.5 h-3.5 text-amber-400"></i>
-                  <span>2. Mã PIN bảo mật cá nhân:</span>
+                  <span>4. Mã PIN bảo mật cá nhân:</span>
                 </label>
                 <span class="text-[10px] text-amber-400 font-medium">Bảo vệ bảng lương</span>
               </div>
@@ -368,7 +390,7 @@
 
               <div>
                 <label class="block text-xs font-semibold text-slate-300 mb-1 flex items-center justify-between">
-                  <span>2. Tạo Mã PIN mới (4-6 số):</span>
+                  <span>4. Tạo Mã PIN mới (4-6 số):</span>
                   <span class="text-[10px] text-slate-400">Chỉ gồm chữ số</span>
                 </label>
                 <div class="relative">
@@ -382,7 +404,7 @@
 
               <div>
                 <label class="block text-xs font-semibold text-slate-300 mb-1">
-                  <span>3. Xác nhận lại Mã PIN:</span>
+                  <span>5. Xác nhận lại Mã PIN:</span>
                 </label>
                 <div class="relative">
                   <i data-lucide="check-circle-2" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
@@ -402,7 +424,7 @@
 
           <button type="submit" id="btn-submit-name" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white font-bold text-sm shadow-lg shadow-brand-600/30 transition-all duration-150 active:scale-[0.98] flex items-center justify-center gap-2">
             <i data-lucide="shield-check" class="w-4 h-4"></i>
-            <span id="btn-submit-name-text">Tra Cứu Báo Cáo Cá Nhân Của Tôi</span>
+            <span id="btn-submit-name-text">Xác Thực & Mở Khóa Báo Cáo Cá Nhân</span>
           </button>
         </form>
 
@@ -2101,10 +2123,15 @@
       // Check if this device previously remembered an AM
       try {
         const rememberedAM = JSON.parse(localStorage.getItem('hcm_bi_remembered_am') || 'null');
-        if (rememberedAM && rememberedAM.name) {
-          const nameInput = document.getElementById('login-am-name');
-          if (nameInput) {
-            nameInput.value = rememberedAM.name;
+        if (rememberedAM) {
+          if (rememberedAM.id && document.getElementById('login-am-id')) {
+            document.getElementById('login-am-id').value = rememberedAM.id;
+          }
+          if (rememberedAM.name && document.getElementById('login-am-name')) {
+            document.getElementById('login-am-name').value = rememberedAM.name;
+          }
+          if (rememberedAM.email && document.getElementById('login-am-email')) {
+            document.getElementById('login-am-email').value = rememberedAM.email;
           }
         }
       } catch(e) {}
@@ -2221,7 +2248,9 @@
 
     // Interactive Mascot Event Handlers
     function bindMascotEvents() {
+      const idInput = document.getElementById('login-am-id');
       const nameInput = document.getElementById('login-am-name');
+      const emailInput = document.getElementById('login-am-email');
       const usernameInput = document.getElementById('login-username');
       const passwordInput = document.getElementById('login-password');
       const pinInput = document.getElementById('login-am-pin');
@@ -2237,7 +2266,7 @@
         if (eyeR) eyeR.style.transform = `translateX(${offset}px) translateY(2px)`;
       };
 
-      [nameInput, usernameInput].forEach(inp => {
+      [idInput, nameInput, emailInput, usernameInput].forEach(inp => {
         if (inp) {
           inp.addEventListener('input', handleEyeMovement);
           inp.addEventListener('focus', () => resetMascot());
@@ -2305,8 +2334,101 @@
     }
 
     // =========================================================================
-    // AM PERSONAL PIN SYSTEM (OPTION 1A - PERSONAL SECRET PIN & DEVICE PROTECTION)
+    // OFFICIAL AM DIRECTORY & 3-FACTOR IDENTITY VERIFICATION (ID + TÊN + EMAIL)
     // =========================================================================
+    const OFFICIAL_AM_DIRECTORY = [
+      { id: "3116636", name: "Đoàn Ngọc Trung", email: "trungdn@ghn.vn" },
+      { id: "3091343", name: "Nguyễn Quang Thắng", email: "thangnq@ghn.vn" },
+      { id: "3088973", name: "Võ Minh Thành Hưng", email: "hungvmt@ghn.vn" },
+      { id: "3088512", name: "Phạm Huy Thiện", email: "thienph3@ghn.vn" },
+      { id: "3074722", name: "Võ Thị Bích Ngọc", email: "ngocvtb@ghn.vn" },
+      { id: "3072699", name: "Vũ Bạch Khiêm", email: "khiemvb@ghn.vn" },
+      { id: "3055833", name: "Lưu Thanh Vũ", email: "vult2@ghn.vn" },
+      { id: "3044380", name: "Nguyễn Thị Mỹ Tiên", email: "tienntm@ghn.vn" },
+      { id: "3040813", name: "Trần Nguyễn Long Huy", email: "huytnl@ghn.vn" },
+      { id: "3036907", name: "Nguyễn Thị Huyền Trinh", email: "trinhnth@ghn.vn" },
+      { id: "3031315", name: "Nguyễn Văn Tân", email: "tannv1@ghn.vn" },
+      { id: "3031270", name: "Nguyễn Đình Toàn", email: "toannd@ghn.vn" },
+      { id: "3018295", name: "Lê Trọng Hậu", email: "hault@ghn.vn" },
+      { id: "3017725", name: "Khiếu Trung Kiên", email: "kienkt@ghn.vn" },
+      { id: "3014423", name: "Nguyễn Hoàng Khánh Linh", email: "linhnhk@ghn.vn" },
+      { id: "3009438", name: "Đặng Hoài Phong", email: "phongdh@ghn.vn" },
+      { id: "257501",  name: "Hoàng Đình Vũ", email: "vuhd@ghn.vn" },
+      { id: "257472",  name: "Nguyễn Văn Tuyên", email: "tuyennv@ghn.vn" },
+      { id: "242105",  name: "Huỳnh Tấn Hiền", email: "hienht@ghn.vn" },
+      { id: "210781",  name: "Huỳnh Tấn Dũng", email: "dunght@ghn.vn" },
+      { id: "2045807", name: "Võ Minh Tông", email: "tongvm@ghn.vn" },
+      { id: "2043609", name: "Trần Lệ Huyền Trân", email: "trantlh@ghn.vn" },
+      { id: "2041521", name: "Nguyễn Văn Tài", email: "tainv@ghn.vn" },
+      { id: "2041305", name: "Lê Trọng Tùng", email: "tunglt@ghn.vn" },
+      { id: "2039004", name: "Trần Đại Hưng", email: "hungtd@ghn.vn" },
+      { id: "200726",  name: "Phan Nguyễn An", email: "anpn@ghn.vn" },
+      { id: "200158",  name: "Nguyễn Đoàn Anh Thư", email: "thunda@ghn.vn" },
+      { id: "198829",  name: "Phạm Văn Tùng", email: "tungpv@ghn.vn" },
+      { id: "1875488", name: "Lê Thị Cẩm Tiên", email: "tienltc@ghn.vn" },
+      { id: "1874426", name: "Tạ Đăng Hiếu", email: "hieutd@ghn.vn" },
+      { id: "1871696", name: "Nguyễn Hữu Lộc", email: "locnh@ghn.vn" },
+      { id: "1809128", name: "NGUYỄN HỮU TIẾN (HCM)", email: "tiennh@ghn.vn" },
+      { id: "1765374", name: "Huỳnh Thị Mai Trinh", email: "trinhhtm@ghn.vn" },
+      { id: "1724750", name: "Nguyễn Thanh Bình", email: "binhnt2@ghn.vn" },
+      { id: "1704920", name: "Tôn Ngọc Lực", email: "luctn@ghn.vn" }
+    ];
+
+    function cleanEmailUsername(raw) {
+      if (!raw) return '';
+      let s = String(raw).trim().toLowerCase();
+      return s.replace(/@ghn.vn$|@gmail.com$/i, '');
+    }
+
+    function verifyAmIdentity(rawId, rawName, rawEmail) {
+      if (!rawId || !rawName || !rawEmail) {
+        return { 
+          valid: false, 
+          reason: 'missing_fields', 
+          message: '⚠️ Vui lòng nhập đầy đủ cả 3 tiêu chí: Mã NV (ID), Họ và Tên, và Email công ty (@ghn.vn)!' 
+        };
+      }
+
+      const cleanId = String(rawId).trim();
+      const normInputName = normalizeVN(rawName);
+      const cleanInputEmail = cleanEmailUsername(rawEmail);
+
+      // 1. Check ID existence
+      const record = OFFICIAL_AM_DIRECTORY.find(i => String(i.id).trim() === cleanId);
+      if (!record) {
+        return { 
+          valid: false, 
+          reason: 'id_not_found', 
+          message: `❌ Mã Nhân Viên (ID) "${rawId}" không tồn tại trong danh sách AM Vùng HCM!` 
+        };
+      }
+
+      // 2. Check Name match
+      const normRecordName = normalizeVN(record.name);
+      const isNameMatched = normInputName === normRecordName || 
+                            normRecordName.includes(normInputName) || 
+                            normInputName.includes(normRecordName);
+      if (!isNameMatched) {
+        return { 
+          valid: false, 
+          reason: 'name_mismatch', 
+          message: `❌ Họ và tên "${rawName}" không trùng khớp với Mã NV ${cleanId} (Hồ sơ: ${record.name})!` 
+        };
+      }
+
+      // 3. Check Email match
+      const recordEmailUser = cleanEmailUsername(record.email);
+      if (cleanInputEmail !== recordEmailUser) {
+        return { 
+          valid: false, 
+          reason: 'email_mismatch', 
+          message: `❌ Email công ty "${rawEmail}" không trùng khớp với hồ sơ của AM ${record.name}!` 
+        };
+      }
+
+      return { valid: true, record: record };
+    }
+
     function getAmPinsData() {
       try {
         return JSON.parse(localStorage.getItem('hcm_bi_am_pins') || '{}');
@@ -2374,45 +2496,40 @@
       alert('🔒 QUÊN MÃ PIN CÁ NHÂN?\n\nVì lý do bảo mật dữ liệu lương tuyệt đối:\nVui lòng liên hệ trực tiếp Ban Quản Trị / HR (Võ Tuấn Anh) để được xác minh danh tính và Đặt lại (Reset) mã PIN cho bạn.');
     }
 
-    function findMatchedAM(rawInput) {
-      if (!rawInput) return null;
-      const currentList = getCurrentMonthData();
-      const normInput = normalizeVN(rawInput);
-      return currentList.find(i => {
-        const normName = normalizeVN(i.ten_am);
-        const code = String(i.ma_am || '');
-        return normName === normInput || 
-               normName.includes(normInput) || 
-               normInput.includes(normName) || 
-               code === rawInput;
-      });
-    }
-
     function checkAmPinStatus() {
-      const rawInput = document.getElementById('login-am-name').value.trim();
-      const matched = findMatchedAM(rawInput);
+      const rawId = (document.getElementById('login-am-id') ? document.getElementById('login-am-id').value : '').trim();
+      const rawName = (document.getElementById('login-am-name') ? document.getElementById('login-am-name').value : '').trim();
+
       const verifyBox = document.getElementById('pin-box-verify');
       const setupBox = document.getElementById('pin-box-setup');
       const submitText = document.getElementById('btn-submit-name-text');
 
-      if (matched) {
-        const record = getAmPinRecord(matched.ma_am, matched.ten_am);
-        if (record && record.pin) {
+      let record = null;
+      if (rawId) {
+        record = OFFICIAL_AM_DIRECTORY.find(i => String(i.id).trim() === rawId);
+      }
+      if (!record && rawName) {
+        const norm = normalizeVN(rawName);
+        record = OFFICIAL_AM_DIRECTORY.find(i => normalizeVN(i.name) === norm);
+      }
+
+      if (record) {
+        const pinRec = getAmPinRecord(record.id, record.name);
+        if (pinRec && pinRec.pin) {
           // Has PIN -> Show verify PIN
           if (verifyBox) verifyBox.classList.remove('hidden');
           if (setupBox) setupBox.classList.add('hidden');
-          if (submitText) submitText.textContent = `Mở Khóa Báo Cáo Của ${matched.ten_am}`;
+          if (submitText) submitText.textContent = `Mở Khóa Báo Cáo Của ${record.name}`;
         } else {
           // No PIN yet -> Show setup PIN
           if (verifyBox) verifyBox.classList.add('hidden');
           if (setupBox) setupBox.classList.remove('hidden');
-          if (submitText) submitText.textContent = `Tạo PIN & Mở Khóa Báo Cáo ${matched.ten_am}`;
+          if (submitText) submitText.textContent = `Tạo PIN & Mở Khóa Báo Cáo ${record.name}`;
         }
       } else {
-        // Unknown AM -> default setup
         if (verifyBox) verifyBox.classList.add('hidden');
         if (setupBox) setupBox.classList.remove('hidden');
-        if (submitText) submitText.textContent = 'Tra Cứu Báo Cáo Cá Nhân Của Tôi';
+        if (submitText) submitText.textContent = 'Xác Thực & Mở Khóa Báo Cáo Cá Nhân';
       }
     }
 
@@ -2421,7 +2538,6 @@
       const countBadge = document.getElementById('am-pin-count-badge');
       if (!container) return;
 
-      const currentList = getCurrentMonthData();
       const pins = getAmPinsData();
       const searchInp = document.getElementById('filter-am-pin-search');
       const query = searchInp ? normalizeVN(searchInp.value.trim()) : '';
@@ -2429,15 +2545,16 @@
       let createdCount = 0;
       let html = '';
 
-      currentList.forEach(am => {
-        const record = pins[am.ma_am] || getAmPinRecord(am.ma_am, am.ten_am);
+      OFFICIAL_AM_DIRECTORY.forEach(am => {
+        const record = pins[am.id] || getAmPinRecord(am.id, am.name);
         const hasPin = !!(record && record.pin);
         if (hasPin) createdCount++;
 
-        const normName = normalizeVN(am.ten_am);
-        const code = String(am.ma_am || '');
+        const normName = normalizeVN(am.name);
+        const code = String(am.id || '');
+        const email = String(am.email || '').toLowerCase();
 
-        if (query && !normName.includes(query) && !code.toLowerCase().includes(query)) {
+        if (query && !normName.includes(query) && !code.toLowerCase().includes(query) && !email.includes(query)) {
           return;
         }
 
@@ -2445,10 +2562,12 @@
           <div class="p-2.5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition gap-2">
             <div class="min-w-0">
               <div class="font-bold text-slate-800 dark:text-slate-200 truncate flex items-center gap-1.5">
-                <span>${am.ten_am}</span>
-                <span class="text-[10px] font-mono text-slate-400">(${am.ma_am})</span>
+                <span>${am.name}</span>
+                <span class="text-[10px] font-mono text-slate-400">(${am.id})</span>
               </div>
-              <div class="text-[10px] flex items-center gap-1.5 mt-0.5">
+              <div class="text-[10px] text-slate-500 font-mono flex items-center gap-1 mt-0.5">
+                <span>✉️ ${am.email}</span>
+                <span class="mx-1">•</span>
                 ${hasPin 
                   ? `<span class="text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Đã có mã PIN</span>` 
                   : `<span class="text-slate-400 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span> Chưa tạo mã PIN</span>`}
@@ -2456,7 +2575,7 @@
             </div>
             <div>
               ${hasPin ? `
-                <button type="button" onclick="resetAmPin('${am.ma_am}', '${am.ten_am}')" class="px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-rose-950/60 dark:hover:bg-rose-900/80 dark:text-rose-300 font-semibold text-[11px] border border-rose-200 dark:border-rose-800 transition flex items-center gap-1 whitespace-nowrap">
+                <button type="button" onclick="resetAmPin('${am.id}', '${am.name}')" class="px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-rose-950/60 dark:hover:bg-rose-900/80 dark:text-rose-300 font-semibold text-[11px] border border-rose-200 dark:border-rose-800 transition flex items-center gap-1 whitespace-nowrap">
                   <i data-lucide="rotate-ccw" class="w-3 h-3"></i>
                   Reset PIN
                 </button>
@@ -2474,15 +2593,17 @@
 
       container.innerHTML = html;
       if (countBadge) {
-        countBadge.textContent = `${createdCount} / ${currentList.length} đã tạo PIN`;
+        countBadge.textContent = `${createdCount} / ${OFFICIAL_AM_DIRECTORY.length} đã tạo PIN`;
       }
       lucide.createIcons();
     }
 
-    // 1. Name-based Login (Personal Private View with Secret PIN Authentication)
+    // 1. 3-Factor Strict Identity Verification Login (ID + Name + Email + Secret PIN)
     function handleNameLogin(e) {
       e.preventDefault();
-      const rawInput = document.getElementById('login-am-name').value.trim();
+      const rawId = (document.getElementById('login-am-id') ? document.getElementById('login-am-id').value : '').trim();
+      const rawName = (document.getElementById('login-am-name') ? document.getElementById('login-am-name').value : '').trim();
+      const rawEmail = (document.getElementById('login-am-email') ? document.getElementById('login-am-email').value : '').trim();
       const rememberCheckbox = document.getElementById('login-remember-name');
       const remember = rememberCheckbox ? rememberCheckbox.checked : false;
 
@@ -2498,18 +2619,18 @@
         return;
       }
 
-      if (!rawInput) {
-        showToast('Vui lòng nhập họ và tên của bạn!', 'error');
+      // STRICT 3-FACTOR IDENTITY VERIFICATION
+      const verif = verifyAmIdentity(rawId, rawName, rawEmail);
+      if (!verif.valid) {
+        showToast(verif.message, 'error');
+        // Telegram Alert for suspicious / incorrect attempt
+        sendAdminLoginNotification('failed-auth@system.local', `⚠️ CẢNH BÁO XÁC THỰC THẤT BẠI: ID "${rawId}" | Tên "${rawName}" | Email "${rawEmail}" - Lỗi: ${verif.message}`);
+        logAuditEvent('Hệ thống', `Cảnh báo: Xác thực 3 yếu tố thất bại (ID: ${rawId}, Tên: ${rawName}, Email: ${rawEmail})`, 'warning');
         return;
       }
 
-      const matchedAM = findMatchedAM(rawInput);
-      if (!matchedAM) {
-        showToast(`Không tìm thấy hồ sơ AM: "${rawInput}". Vui lòng kiểm tra lại họ tên!`, 'error');
-        return;
-      }
-
-      const record = getAmPinRecord(matchedAM.ma_am, matchedAM.ten_am);
+      const matchedAM = verif.record;
+      const record = getAmPinRecord(matchedAM.id, matchedAM.name);
 
       if (record && record.pin) {
         // AM ALREADY HAS PIN -> VERIFY PIN
@@ -2521,10 +2642,10 @@
         }
 
         if (enteredPin !== record.pin) {
-          showToast(`❌ Mã PIN của AM ${matchedAM.ten_am} không chính xác! Vui lòng thử lại.`, 'error');
+          showToast(`❌ Mã PIN của AM ${matchedAM.name} không chính xác! Vui lòng thử lại.`, 'error');
           // Telegram Alert for failed PIN attempt
-          sendAdminLoginNotification('failed-pin@system.local', `⚠️ CẢNH BÁO NHẬP SAI PIN CỦA AM: ${matchedAM.ten_am} (${matchedAM.ma_am})`);
-          logAuditEvent('Hệ thống', `Cảnh báo: Nhập sai mã PIN của AM ${matchedAM.ten_am} (${matchedAM.ma_am})`, 'warning');
+          sendAdminLoginNotification('failed-pin@system.local', `⚠️ CẢNH BÁO NHẬP SAI PIN CỦA AM: ${matchedAM.name} (Mã: ${matchedAM.id})`);
+          logAuditEvent('Hệ thống', `Cảnh báo: Nhập sai mã PIN của AM ${matchedAM.name} (Mã: ${matchedAM.id})`, 'warning');
           document.getElementById('login-am-pin').value = '';
           document.getElementById('login-am-pin').focus();
           return;
@@ -2553,36 +2674,37 @@
         }
 
         // Save new PIN
-        setAmPin(matchedAM.ma_am, matchedAM.ten_am, newPin);
-        showToast(`🎉 Đã thiết lập mã PIN bảo mật cho AM ${matchedAM.ten_am} thành công!`, 'success');
-        sendAdminLoginNotification('setup-pin@system.local', `🔒 KHỞI TẠO PIN BẢO MẬT: AM ${matchedAM.ten_am} (${matchedAM.ma_am})`);
+        setAmPin(matchedAM.id, matchedAM.name, newPin);
+        showToast(`🎉 Đã thiết lập mã PIN bảo mật cho AM ${matchedAM.name} thành công!`, 'success');
+        sendAdminLoginNotification('setup-pin@system.local', `🔒 KHỞI TẠO PIN BẢO MẬT: AM ${matchedAM.name} (Mã: ${matchedAM.id})`);
       }
 
       const userObj = {
         authenticated: true,
-        name: matchedAM.ten_am,
-        ma_am: matchedAM.ma_am,
+        name: matchedAM.name,
+        ma_am: matchedAM.id,
+        email: matchedAM.email,
         role: 'am',
-        scopedAM: matchedAM.ten_am,
-        method: 'name',
+        scopedAM: matchedAM.name,
+        method: '3factor',
         loginTime: new Date().toISOString()
       };
 
       if (remember) {
         localStorage.setItem('hcm_bi_auth_user', JSON.stringify(userObj));
-        localStorage.setItem('hcm_bi_remembered_am', JSON.stringify({ ma_am: matchedAM.ma_am, name: matchedAM.ten_am }));
+        localStorage.setItem('hcm_bi_remembered_am', JSON.stringify({ id: matchedAM.id, name: matchedAM.name, email: matchedAM.email }));
       } else {
         sessionStorage.setItem('hcm_bi_auth_user', JSON.stringify(userObj));
       }
 
       AppState.currentUser = userObj;
-      AppState.scopedAM = matchedAM.ten_am;
+      AppState.scopedAM = matchedAM.name;
 
-      logAuditEvent(userObj.name, `Đăng nhập cá nhân tra cứu KPI AM (${matchedAM.ma_am})`, 'success');
-      sendAdminLoginNotification('tra-cuu-am@system.local', `${matchedAM.ten_am} (Mã: ${matchedAM.ma_am})`);
+      logAuditEvent(userObj.name, `Đăng nhập cá nhân thành công qua xác thực 3 yếu tố (Mã: ${matchedAM.id})`, 'success');
+      sendAdminLoginNotification(matchedAM.email, `${matchedAM.name} (Mã: ${matchedAM.id})`);
 
       triggerConfetti();
-      showToast(`Xin chào ${matchedAM.ten_am}! Đã mở bảng số liệu cá nhân của bạn.`, 'success');
+      showToast(`Xin chào ${matchedAM.name}! Đã mở bảng số liệu cá nhân của bạn.`, 'success');
       unlockDashboard(userObj);
     }
 
