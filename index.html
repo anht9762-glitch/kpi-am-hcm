@@ -381,17 +381,22 @@
               </div>
               <div class="flex justify-between items-center text-[11px] text-slate-400 pt-0.5">
                 <span>Nhập mã PIN bạn đã tạo</span>
-                <a href="javascript:void(0)" onclick="handleForgotPin()" class="text-amber-400 hover:underline">Quên mã PIN?</a>
+                <a href="javascript:void(0)" onclick="toggleResetPinMode()" class="text-amber-400 hover:underline flex items-center gap-1">
+                  <i data-lucide="refresh-cw" class="w-3 h-3"></i>
+                  <span>Quên / Đặt lại mã PIN mới</span>
+                </a>
               </div>
             </div>
 
-            <!-- STATE B: AM has NO PIN yet (First-time setup) -->
+            <!-- STATE B: AM has NO PIN yet (First-time setup or Reset) -->
             <div id="pin-box-setup" class="space-y-3">
-              <div class="p-2.5 rounded-lg bg-sky-950/60 border border-sky-800/70 text-xs text-sky-300 flex items-start gap-2">
-                <i data-lucide="sparkles" class="w-4 h-4 text-sky-400 flex-shrink-0 mt-0.5"></i>
-                <div>
-                  <strong class="text-sky-200 block font-semibold">Tạo mã PIN cá nhân lần đầu (4-6 số):</strong>
-                  Mã PIN này do bạn tự đặt để bảo vệ bảng lương. Từ lần sau chỉ mình bạn mới mở được.
+              <div class="p-2.5 rounded-lg bg-sky-950/60 border border-sky-800/70 text-xs text-sky-300 flex items-start justify-between gap-2">
+                <div class="flex items-start gap-2">
+                  <i data-lucide="sparkles" class="w-4 h-4 text-sky-400 flex-shrink-0 mt-0.5"></i>
+                  <div>
+                    <strong class="text-sky-200 block font-semibold">Tạo mã PIN cá nhân (4-6 số):</strong>
+                    Mã PIN này do bạn tự đặt để bảo vệ bảng lương. Từ lần sau chỉ mình bạn mới mở được.
+                  </div>
                 </div>
               </div>
 
@@ -418,18 +423,22 @@
                   <input type="password" id="login-am-confirm-pin" inputmode="numeric" maxlength="6" placeholder="Nhập lại mã PIN bên trên..." class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-800/90 border border-slate-700 text-white text-sm tracking-widest focus:ring-2 focus:ring-brand-500 focus:outline-none transition font-mono">
                 </div>
               </div>
+
+              <div id="setup-back-link-box" class="hidden text-right text-[11px] pt-0.5">
+                <a href="javascript:void(0)" onclick="toggleResetPinMode()" class="text-sky-400 hover:underline">⬅️ Tôi đã có mã PIN (Quay lại đăng nhập)</a>
+              </div>
             </div>
 
           </div>
 
           <div class="flex items-center justify-between text-xs pt-1">
             <label class="flex items-center gap-2 cursor-pointer select-none text-slate-300 font-medium hover:text-white transition">
-              <input type="checkbox" id="login-remember-name" required class="w-4 h-4 rounded bg-slate-800 border-slate-700 text-brand-600 focus:ring-brand-500 cursor-pointer">
-              <span>Ghi nhớ thiết bị này <span class="text-amber-400 font-bold">* (Bắt buộc)</span></span>
+              <input type="checkbox" id="login-remember-name" checked class="w-4 h-4 rounded bg-slate-800 border-slate-700 text-brand-600 focus:ring-brand-500 cursor-pointer">
+              <span>Ghi nhớ thiết bị này (Tự động mở trên máy của bạn)</span>
             </label>
           </div>
 
-          <button type="submit" id="btn-submit-name" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white font-bold text-sm shadow-lg shadow-brand-600/30 transition-all duration-150 active:scale-[0.98] flex items-center justify-center gap-2">
+          <button type="button" onclick="handleNameLogin(event)" id="btn-submit-name" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white font-bold text-sm shadow-lg shadow-brand-600/30 transition-all duration-150 active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer">
             <i data-lucide="shield-check" class="w-4 h-4"></i>
             <span id="btn-submit-name-text">Xác Thực & Mở Khóa Báo Cáo Cá Nhân</span>
           </button>
@@ -492,7 +501,7 @@
   <!-- ========================================================================= -->
   <!-- 2. MAIN APPLICATION CONTENT (Rendered when authenticated)                -->
   <!-- ========================================================================= -->
-  <div id="app-root" class="hidden">
+  <div id="app-root" class="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 hidden">
 
     <!-- Header & Navigation Bar -->
     <header class="sticky top-0 z-30 bg-white/95 dark:bg-slate-900/95 border-b border-slate-200 dark:border-slate-800 glass-effect">
@@ -584,6 +593,7 @@
           </div>
 
         </div>
+      </div>
     </header>
 
     <!-- Main Content Container -->
@@ -886,8 +896,8 @@
           </div>
         </div>
 
-        <!-- Chart 3: Leaderboard / Personal Standing Bar Chart - 6 cols -->
-        <div class="lg:col-span-6 bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col">
+        <!-- Chart 3: Leaderboard (Admin only) - 6 cols -->
+        <div id="chart3-container" class="lg:col-span-6 bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col">
           <div class="flex items-center justify-between mb-4">
             <div>
               <h2 id="chart3-title" class="text-sm sm:text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
@@ -907,8 +917,8 @@
           </div>
         </div>
 
-        <!-- Chart 4: Multi-month Trend Chart - 6 cols -->
-        <div class="lg:col-span-6 bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col">
+        <!-- Chart 4: Multi-month Trend Chart - 6 or 12 cols -->
+        <div id="chart4-container" class="lg:col-span-6 bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col">
           <div class="flex items-center justify-between mb-4">
             <div>
               <h2 id="chart4-title" class="text-sm sm:text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
@@ -2051,37 +2061,46 @@
       return AppState.data[AppState.currentMonth] || [];
     }
 
-    // Resolve the active AM record for personal view
+    // Resolve the active AM record for personal view (Precise ID + Name matching)
     function getActiveAM() {
       const currentList = getCurrentMonthData();
       if (!currentList.length) return null;
 
-      // 1. Check scopedAM if set
-      if (AppState.scopedAM) {
-        const found = currentList.find(i => normalizeVN(i.ten_am) === normalizeVN(AppState.scopedAM) || String(i.ma_am) === String(AppState.scopedAM));
+      const userCode = AppState.currentUser ? String(AppState.currentUser.ma_am || '').trim() : '';
+      const userName = AppState.currentUser ? normalizeVN(AppState.currentUser.name || '') : '';
+      const scoped = AppState.scopedAM ? String(AppState.scopedAM).trim() : '';
+      const normScoped = normalizeVN(scoped);
+
+      // 1. Precise Match by Employee ID (Mã AM)
+      if (userCode) {
+        const found = currentList.find(i => String(i.ma_am || '').trim() === userCode);
+        if (found) return found;
+      }
+      if (scoped) {
+        const found = currentList.find(i => String(i.ma_am || '').trim() === scoped);
         if (found) return found;
       }
 
-      // 2. Check currentUser name / code
-      if (AppState.currentUser) {
-        const uName = normalizeVN(AppState.currentUser.name || '');
-        const uCode = String(AppState.currentUser.ma_am || '');
-
-        const found = currentList.find(i => {
-          const iName = normalizeVN(i.ten_am);
-          const iCode = String(i.ma_am || '');
-          return (uCode && iCode === uCode) ||
-                 (uName && (iName === uName || iName.includes(uName) || uName.includes(iName)));
-        });
-
-        if (found) {
-          AppState.scopedAM = found.ten_am;
-          return found;
-        }
+      // 2. Match by Exact Name
+      if (userName) {
+        const found = currentList.find(i => normalizeVN(i.ten_am) === userName);
+        if (found) return found;
+      }
+      if (normScoped) {
+        const found = currentList.find(i => normalizeVN(i.ten_am) === normScoped);
+        if (found) return found;
       }
 
-      // Fallback
-      return currentList[0];
+      // 3. Fallback partial match
+      if (userName) {
+        const found = currentList.find(i => {
+          const iName = normalizeVN(i.ten_am);
+          return iName.includes(userName) || userName.includes(iName);
+        });
+        if (found) return found;
+      }
+
+      return currentList[0] || null;
     }
 
     // Populate Datalist of all AMs for quick autocomplete
@@ -2158,70 +2177,100 @@
     }
 
     function lockDashboard() {
-      document.getElementById('auth-portal').classList.remove('hidden');
-      document.getElementById('app-root').classList.add('hidden');
+      const portal = document.getElementById('auth-portal');
+      const app = document.getElementById('app-root');
+      if (portal) {
+        portal.classList.remove('hidden');
+        portal.style.display = 'flex';
+      }
+      if (app) {
+        app.classList.add('hidden');
+        app.style.display = 'none';
+      }
     }
 
     function unlockDashboard(user) {
-      document.getElementById('auth-portal').classList.add('hidden');
-      document.getElementById('app-root').classList.remove('hidden');
-      
-      const isAdmin = (user.role === 'admin');
-      const personalItem = !isAdmin ? getActiveAM() : null;
-
-      // Update User Info on Header
-      if (isAdmin) {
-        document.getElementById('user-display-name').textContent = user.name || 'Master Admin';
-        document.getElementById('user-display-role').textContent = '👑 Quản Trị';
-      } else if (personalItem) {
-        document.getElementById('user-display-name').textContent = personalItem.ten_am;
-        document.getElementById('user-display-role').textContent = `👤 AM: ${personalItem.ten_am} (${personalItem.ma_am})`;
-      } else {
-        document.getElementById('user-display-name').textContent = user.name || 'Thành viên';
-        document.getElementById('user-display-role').textContent = '👤 Quản Lý Khu Vực';
-      }
-      
-      // Control Admin vs AM UI Elements
-      const adminScopeEl = document.getElementById('admin-scope-container');
-      const uploadBtn = document.getElementById('btn-upload-container');
-      const teleCfgBtn = document.getElementById('btn-open-tele-cfg');
-      const securityBtn = document.getElementById('btn-open-security');
-      const auditBtn = document.getElementById('btn-open-audit-log');
-      const privateBanner = document.getElementById('banner-private-view');
-      const chipsEl = document.getElementById('quick-preset-chips');
-      const searchGroup = document.getElementById('search-filter-group');
-      const sortingControls = document.getElementById('table-sorting-controls');
-
-      if (isAdmin) {
-        if (adminScopeEl) adminScopeEl.classList.remove('hidden');
-        if (uploadBtn) uploadBtn.classList.remove('hidden');
-        if (teleCfgBtn) teleCfgBtn.classList.remove('hidden');
-        if (securityBtn) securityBtn.classList.remove('hidden');
-        if (auditBtn) auditBtn.classList.remove('hidden');
-        if (privateBanner) privateBanner.classList.add('hidden');
-        if (chipsEl) chipsEl.classList.remove('hidden');
-        if (searchGroup) searchGroup.classList.remove('hidden');
-        if (sortingControls) sortingControls.classList.remove('hidden');
-      } else {
-        // Individual AM view: STRICTLY hide all regional tools & filters
-        if (adminScopeEl) adminScopeEl.classList.add('hidden');
-        if (uploadBtn) uploadBtn.classList.add('hidden');
-        if (teleCfgBtn) teleCfgBtn.classList.add('hidden');
-        if (securityBtn) securityBtn.classList.add('hidden');
-        if (auditBtn) auditBtn.classList.add('hidden');
-        if (chipsEl) chipsEl.classList.add('hidden');
-        if (searchGroup) searchGroup.classList.add('hidden');
-        if (sortingControls) sortingControls.classList.add('hidden');
-
-        if (privateBanner && personalItem) {
-          privateBanner.classList.remove('hidden');
-          document.getElementById('banner-am-greeting').textContent = `Xin chào ${personalItem.ten_am}! Đây là bảng tổng hợp hiệu suất cá nhân của bạn.`;
-          document.getElementById('banner-am-code').textContent = `Mã AM: ${personalItem.ma_am}`;
+      try {
+        const portal = document.getElementById('auth-portal');
+        const app = document.getElementById('app-root');
+        if (portal) {
+          portal.classList.add('hidden');
+          portal.style.display = 'none';
         }
-      }
+        if (app) {
+          app.classList.remove('hidden');
+          app.style.display = 'block';
+        }
+        
+        const isAdmin = (user.role === 'admin');
+        const personalItem = !isAdmin ? getActiveAM() : null;
 
-      refreshDashboard();
-      lucide.createIcons();
+        // Update User Info on Header
+        if (isAdmin) {
+          const nameEl = document.getElementById('user-display-name');
+          const roleEl = document.getElementById('user-display-role');
+          if (nameEl) nameEl.textContent = user.name || 'Master Admin';
+          if (roleEl) roleEl.textContent = '👑 Quản Trị';
+        } else if (personalItem) {
+          const nameEl = document.getElementById('user-display-name');
+          const roleEl = document.getElementById('user-display-role');
+          if (nameEl) nameEl.textContent = personalItem.ten_am;
+          if (roleEl) roleEl.textContent = `👤 AM: ${personalItem.ten_am} (${personalItem.ma_am})`;
+        } else {
+          const nameEl = document.getElementById('user-display-name');
+          const roleEl = document.getElementById('user-display-role');
+          if (nameEl) nameEl.textContent = user.name || 'Thành viên';
+          if (roleEl) roleEl.textContent = `👤 AM: ${user.name} (${user.ma_am || ''})`;
+        }
+        
+        // Control Admin vs AM UI Elements
+        const adminScopeEl = document.getElementById('admin-scope-container');
+        const uploadBtn = document.getElementById('btn-upload-container');
+        const teleCfgBtn = document.getElementById('btn-open-tele-cfg');
+        const securityBtn = document.getElementById('btn-open-security');
+        const auditBtn = document.getElementById('btn-open-audit-log');
+        const privateBanner = document.getElementById('banner-private-view');
+        const chipsEl = document.getElementById('quick-preset-chips');
+        const searchGroup = document.getElementById('search-filter-group');
+        const sortingControls = document.getElementById('table-sorting-controls');
+
+        if (isAdmin) {
+          if (adminScopeEl) adminScopeEl.classList.remove('hidden');
+          if (uploadBtn) uploadBtn.classList.remove('hidden');
+          if (teleCfgBtn) teleCfgBtn.classList.remove('hidden');
+          if (securityBtn) securityBtn.classList.remove('hidden');
+          if (auditBtn) auditBtn.classList.remove('hidden');
+          if (privateBanner) privateBanner.classList.add('hidden');
+          if (chipsEl) chipsEl.classList.remove('hidden');
+          if (searchGroup) searchGroup.classList.remove('hidden');
+          if (sortingControls) sortingControls.classList.remove('hidden');
+        } else {
+          // Individual AM view: STRICTLY hide all regional tools & filters
+          if (adminScopeEl) adminScopeEl.classList.add('hidden');
+          if (uploadBtn) uploadBtn.classList.add('hidden');
+          if (teleCfgBtn) teleCfgBtn.classList.add('hidden');
+          if (securityBtn) securityBtn.classList.add('hidden');
+          if (auditBtn) auditBtn.classList.add('hidden');
+          if (chipsEl) chipsEl.classList.add('hidden');
+          if (searchGroup) searchGroup.classList.add('hidden');
+          if (sortingControls) sortingControls.classList.add('hidden');
+
+          if (privateBanner) {
+            privateBanner.classList.remove('hidden');
+            const greetingEl = document.getElementById('banner-am-greeting');
+            const codeEl = document.getElementById('banner-am-code');
+            if (greetingEl) greetingEl.textContent = personalItem ? `Xin chào ${personalItem.ten_am}! Đây là bảng tổng hợp hiệu suất cá nhân của bạn.` : `Xin chào ${user.name}!`;
+            if (codeEl) codeEl.textContent = personalItem ? `Mã AM: ${personalItem.ma_am}` : `Mã AM: ${user.ma_am || 'AM'}`;
+          }
+        }
+
+        refreshDashboard();
+      } catch(err) {
+        console.error('Error unlocking dashboard:', err);
+      }
+      try {
+        lucide.createIcons();
+      } catch(e) {}
     }
 
     function handleLogout() {
@@ -2358,41 +2407,43 @@
     // OFFICIAL AM DIRECTORY & 3-FACTOR IDENTITY VERIFICATION (ID + TÊN + EMAIL)
     // =========================================================================
     const OFFICIAL_AM_DIRECTORY = [
-      { id: "3116636", name: "Đoàn Ngọc Trung", email: "trungdn@ghn.vn" },
-      { id: "3091343", name: "Nguyễn Quang Thắng", email: "thangnq@ghn.vn" },
-      { id: "3088973", name: "Võ Minh Thành Hưng", email: "hungvmt@ghn.vn" },
-      { id: "3088512", name: "Phạm Huy Thiện", email: "thienph3@ghn.vn" },
+      { id: "210781",  name: "Huỳnh Tấn Dũng", email: "dunght@ghn.vn" },
+      { id: "2041521", name: "Nguyễn Văn Tài", email: "tainv@ghn.vn" },
+      { id: "2045807", name: "Võ Minh Tông", email: "tongvm@ghn.vn" },
       { id: "3074722", name: "Võ Thị Bích Ngọc", email: "ngocvtb@ghn.vn" },
-      { id: "3072699", name: "Vũ Bạch Khiêm", email: "khiemvb@ghn.vn" },
-      { id: "3055833", name: "Lưu Thanh Vũ", email: "vult2@ghn.vn" },
-      { id: "3044380", name: "Nguyễn Thị Mỹ Tiên", email: "tienntm@ghn.vn" },
+      { id: "3091343", name: "Nguyễn Quang Thắng", email: "thangnq@ghn.vn" },
+      { id: "257501",  name: "Hoàng Đình Vũ", email: "vuhd@ghn.vn" },
+      { id: "2041305", name: "Lê Trọng Tùng", email: "tunglt@ghn.vn" },
+      { id: "200158",  name: "Nguyễn Đoàn Anh Thư", email: "thunda@ghn.vn" },
+      { id: "3116636", name: "Đoàn Ngọc Trung", email: "trungdn@ghn.vn" },
+      { id: "3009438", name: "Đặng Hoài Phong", email: "phongdh@ghn.vn" },
+      { id: "257492",  name: "Nguyễn Chơn Như", email: "nhunc@ghn.vn" },
+      { id: "3025928", name: "Nguyễn Hữu Tiến", email: "tiennh2@ghn.vn" },
+      { id: "1871696", name: "Nguyễn Hữu Lộc", email: "locnh@ghn.vn" },
       { id: "3040813", name: "Trần Nguyễn Long Huy", email: "huytnl@ghn.vn" },
       { id: "3036907", name: "Nguyễn Thị Huyền Trinh", email: "trinhnth@ghn.vn" },
-      { id: "3031315", name: "Nguyễn Văn Tân", email: "tannv1@ghn.vn" },
-      { id: "3031270", name: "Nguyễn Đình Toàn", email: "toannd@ghn.vn" },
+      { id: "3044380", name: "Nguyễn Thị Mỹ Tiên", email: "tienntm@ghn.vn" },
       { id: "3018295", name: "Lê Trọng Hậu", email: "hault@ghn.vn" },
-      { id: "3017725", name: "Khiếu Trung Kiên", email: "kienkt@ghn.vn" },
-      { id: "3014423", name: "Nguyễn Hoàng Khánh Linh", email: "linhnhk@ghn.vn" },
-      { id: "3009438", name: "Đặng Hoài Phong", email: "phongdh@ghn.vn" },
-      { id: "257501",  name: "Hoàng Đình Vũ", email: "vuhd@ghn.vn" },
-      { id: "257472",  name: "Nguyễn Văn Tuyên", email: "tuyennv@ghn.vn" },
-      { id: "242105",  name: "Huỳnh Tấn Hiền", email: "hienht@ghn.vn" },
-      { id: "210781",  name: "Huỳnh Tấn Dũng", email: "dunght@ghn.vn" },
-      { id: "2045807", name: "Võ Minh Tông", email: "tongvm@ghn.vn" },
-      { id: "2043609", name: "Trần Lệ Huyền Trân", email: "trantlh@ghn.vn" },
-      { id: "2041521", name: "Nguyễn Văn Tài", email: "tainv@ghn.vn" },
-      { id: "2041305", name: "Lê Trọng Tùng", email: "tunglt@ghn.vn" },
-      { id: "2039004", name: "Trần Đại Hưng", email: "hungtd@ghn.vn" },
-      { id: "200726",  name: "Phan Nguyễn An", email: "anpn@ghn.vn" },
-      { id: "200158",  name: "Nguyễn Đoàn Anh Thư", email: "thunda@ghn.vn" },
-      { id: "198829",  name: "Phạm Văn Tùng", email: "tungpv@ghn.vn" },
-      { id: "1875488", name: "Lê Thị Cẩm Tiên", email: "tienltc@ghn.vn" },
-      { id: "1874426", name: "Tạ Đăng Hiếu", email: "hieutd@ghn.vn" },
-      { id: "1871696", name: "Nguyễn Hữu Lộc", email: "locnh@ghn.vn" },
-      { id: "1809128", name: "NGUYỄN HỮU TIẾN (HCM)", email: "tiennh@ghn.vn" },
       { id: "1765374", name: "Huỳnh Thị Mai Trinh", email: "trinhhtm@ghn.vn" },
       { id: "1724750", name: "Nguyễn Thanh Bình", email: "binhnt2@ghn.vn" },
-      { id: "1704920", name: "Tôn Ngọc Lực", email: "luctn@ghn.vn" }
+      { id: "1704920", name: "Tôn Ngọc Lực", email: "luctn@ghn.vn" },
+      { id: "3057733", name: "Nguyễn Thị Hoàng Yến", email: "yennth3@ghn.vn" },
+      { id: "1875488", name: "Lê Thị Cẩm Tiên", email: "tienltc@ghn.vn" },
+      { id: "3031270", name: "Nguyễn Đình Toàn", email: "toannd@ghn.vn" },
+      { id: "3088512", name: "Phạm Huy Thiện", email: "thienph3@ghn.vn" },
+      { id: "3014423", name: "Nguyễn Hoàng Khánh Linh", email: "linhnhk@ghn.vn" },
+      { id: "2039004", name: "Trần Đại Hưng", email: "hungtd@ghn.vn" },
+      { id: "257472",  name: "Nguyễn Văn Tuyên", email: "tuyennv@ghn.vn" },
+      { id: "1874426", name: "Tạ Đăng Hiếu", email: "hieutd@ghn.vn" },
+      { id: "200726",  name: "Phan Nguyễn An", email: "anpn@ghn.vn" },
+      { id: "3031315", name: "Nguyễn Văn Tân", email: "tannv1@ghn.vn" },
+      { id: "198829",  name: "Phạm Văn Tùng", email: "tungpv@ghn.vn" },
+      { id: "2043609", name: "Trần Lệ Huyền Trân", email: "trantlh@ghn.vn" },
+      { id: "3017725", name: "Khiếu Trung Kiên", email: "kienkt@ghn.vn" },
+      { id: "1809128", name: "NGUYỄN HỮU TIẾN", email: "tiennh@ghn.vn" },
+      { id: "3072699", name: "Vũ Bạch Khiêm", email: "khiemvb@ghn.vn" },
+      { id: "3088973", name: "Võ Minh Thành Hưng", email: "hungvmt@ghn.vn" },
+      { id: "242105",  name: "Huỳnh Tấn Hiền", email: "hienht@ghn.vn" }
     ];
 
     function cleanEmailUsername(raw) {
@@ -2513,17 +2564,50 @@
       lucide.createIcons();
     }
 
+    let isResettingPinMode = false;
+
+    function toggleResetPinMode() {
+      isResettingPinMode = !isResettingPinMode;
+      const verifyBox = document.getElementById('pin-box-verify');
+      const setupBox = document.getElementById('pin-box-setup');
+      const submitText = document.getElementById('btn-submit-name-text');
+      const backLinkBox = document.getElementById('setup-back-link-box');
+
+      const rawId = (document.getElementById('login-am-id') ? document.getElementById('login-am-id').value : '').trim();
+      const rawName = (document.getElementById('login-am-name') ? document.getElementById('login-am-name').value : '').trim();
+      let amName = 'bạn';
+      if (rawName) amName = rawName;
+
+      if (isResettingPinMode) {
+        if (verifyBox) verifyBox.classList.add('hidden');
+        if (setupBox) setupBox.classList.remove('hidden');
+        if (backLinkBox) backLinkBox.classList.remove('hidden');
+        if (submitText) submitText.textContent = `Lưu Mã PIN Mới & Mở Khóa (${amName})`;
+        const pNew = document.getElementById('login-am-new-pin');
+        if (pNew) { pNew.value = ''; pNew.focus(); }
+        const pConf = document.getElementById('login-am-confirm-pin');
+        if (pConf) pConf.value = '';
+      } else {
+        if (backLinkBox) backLinkBox.classList.add('hidden');
+        checkAmPinStatus();
+      }
+      lucide.createIcons();
+    }
+
     function handleForgotPin() {
-      alert('🔒 QUÊN MÃ PIN CÁ NHÂN?\n\nVì lý do bảo mật dữ liệu lương tuyệt đối:\nVui lòng liên hệ trực tiếp Ban Quản Trị / HR (Võ Tuấn Anh) để được xác minh danh tính và Đặt lại (Reset) mã PIN cho bạn.');
+      toggleResetPinMode();
     }
 
     function checkAmPinStatus() {
+      if (isResettingPinMode) return;
+
       const rawId = (document.getElementById('login-am-id') ? document.getElementById('login-am-id').value : '').trim();
       const rawName = (document.getElementById('login-am-name') ? document.getElementById('login-am-name').value : '').trim();
 
       const verifyBox = document.getElementById('pin-box-verify');
       const setupBox = document.getElementById('pin-box-setup');
       const submitText = document.getElementById('btn-submit-name-text');
+      const backLinkBox = document.getElementById('setup-back-link-box');
 
       let record = null;
       if (rawId) {
@@ -2540,16 +2624,19 @@
           // Has PIN -> Show verify PIN
           if (verifyBox) verifyBox.classList.remove('hidden');
           if (setupBox) setupBox.classList.add('hidden');
+          if (backLinkBox) backLinkBox.classList.add('hidden');
           if (submitText) submitText.textContent = `Mở Khóa Báo Cáo Của ${record.name}`;
         } else {
           // No PIN yet -> Show setup PIN
           if (verifyBox) verifyBox.classList.add('hidden');
           if (setupBox) setupBox.classList.remove('hidden');
+          if (backLinkBox) backLinkBox.classList.add('hidden');
           if (submitText) submitText.textContent = `Tạo PIN & Mở Khóa Báo Cáo ${record.name}`;
         }
       } else {
         if (verifyBox) verifyBox.classList.add('hidden');
         if (setupBox) setupBox.classList.remove('hidden');
+        if (backLinkBox) backLinkBox.classList.add('hidden');
         if (submitText) submitText.textContent = 'Xác Thực & Mở Khóa Báo Cáo Cá Nhân';
       }
     }
@@ -2621,83 +2708,88 @@
 
     // 1. 3-Factor Strict Identity Verification Login (ID + Name + Email + Secret PIN)
     function handleNameLogin(e) {
-      e.preventDefault();
+      if (e && e.preventDefault) e.preventDefault();
       const rawId = (document.getElementById('login-am-id') ? document.getElementById('login-am-id').value : '').trim();
       const rawName = (document.getElementById('login-am-name') ? document.getElementById('login-am-name').value : '').trim();
       const rawEmail = (document.getElementById('login-am-email') ? document.getElementById('login-am-email').value : '').trim();
       const rememberCheckbox = document.getElementById('login-remember-name');
-      const remember = rememberCheckbox ? rememberCheckbox.checked : false;
-
-      if (!remember) {
-        showToast('⚠️ Bạn bắt buộc phải tự tay tick chọn "Ghi nhớ thiết bị này" mới được tra cứu dữ liệu cá nhân!', 'warning');
-        if (rememberCheckbox) {
-          rememberCheckbox.focus();
-          rememberCheckbox.parentElement.classList.add('animate-bounce', 'text-amber-400');
-          setTimeout(() => {
-            rememberCheckbox.parentElement.classList.remove('animate-bounce', 'text-amber-400');
-          }, 2000);
-        }
-        return;
-      }
+      const remember = rememberCheckbox ? rememberCheckbox.checked : true;
 
       // STRICT 3-FACTOR IDENTITY VERIFICATION
       const verif = verifyAmIdentity(rawId, rawName, rawEmail);
       if (!verif.valid) {
         showToast(verif.message, 'error');
-        // Telegram Alert for suspicious / incorrect attempt
-        sendAdminLoginNotification('failed-auth@system.local', `⚠️ CẢNH BÁO XÁC THỰC THẤT BẠI: ID "${rawId}" | Tên "${rawName}" | Email "${rawEmail}" - Lỗi: ${verif.message}`);
-        logAuditEvent('Hệ thống', `Cảnh báo: Xác thực 3 yếu tố thất bại (ID: ${rawId}, Tên: ${rawName}, Email: ${rawEmail})`, 'warning');
+        try {
+          sendAdminLoginNotification('failed-auth@system.local', `⚠️ CẢNH BÁO XÁC THỰC THẤT BẠI: ID "${rawId}" | Tên "${rawName}" | Email "${rawEmail}" - Lỗi: ${verif.message}`);
+          logAuditEvent('Hệ thống', `Cảnh báo: Xác thực 3 yếu tố thất bại (ID: ${rawId}, Tên: ${rawName}, Email: ${rawEmail})`, 'warning');
+        } catch(err) {}
         return;
       }
 
       const matchedAM = verif.record;
       const record = getAmPinRecord(matchedAM.id, matchedAM.name);
 
-      if (record && record.pin) {
-        // AM ALREADY HAS PIN -> VERIFY PIN
-        const enteredPin = document.getElementById('login-am-pin').value.trim();
-        if (!enteredPin) {
-          showToast('⚠️ Vui lòng nhập mã PIN bảo mật cá nhân của bạn!', 'warning');
-          document.getElementById('login-am-pin').focus();
-          return;
-        }
+      const pinVerifyInput = document.getElementById('login-am-pin');
+      const pinNewInput = document.getElementById('login-am-new-pin');
+      const pinConfirmInput = document.getElementById('login-am-confirm-pin');
 
-        if (enteredPin !== record.pin) {
-          showToast(`❌ Mã PIN của AM ${matchedAM.name} không chính xác! Vui lòng thử lại.`, 'error');
-          // Telegram Alert for failed PIN attempt
-          sendAdminLoginNotification('failed-pin@system.local', `⚠️ CẢNH BÁO NHẬP SAI PIN CỦA AM: ${matchedAM.name} (Mã: ${matchedAM.id})`);
-          logAuditEvent('Hệ thống', `Cảnh báo: Nhập sai mã PIN của AM ${matchedAM.name} (Mã: ${matchedAM.id})`, 'warning');
-          document.getElementById('login-am-pin').value = '';
-          document.getElementById('login-am-pin').focus();
-          return;
-        }
-      } else {
-        // AM FIRST-TIME SETUP -> CREATE PIN
-        const newPin = document.getElementById('login-am-new-pin').value.trim();
-        const confirmPin = document.getElementById('login-am-confirm-pin').value.trim();
+      const setupBox = document.getElementById('pin-box-setup');
+      const isSetupVisible = setupBox && !setupBox.classList.contains('hidden');
 
-        if (!newPin || newPin.length < 4 || newPin.length > 6) {
+      const newPinVal = (pinNewInput ? pinNewInput.value : '').trim();
+      const confirmPinVal = (pinConfirmInput ? pinConfirmInput.value : '').trim();
+      const verifyPinVal = (pinVerifyInput ? pinVerifyInput.value : '').trim();
+
+      if (isSetupVisible || newPinVal || isResettingPinMode || (!record || !record.pin)) {
+        // --- CREATE OR RESET PIN BRANCH ---
+        if (!newPinVal || newPinVal.length < 4 || newPinVal.length > 6) {
           showToast('⚠️ Mã PIN mới phải có từ 4 đến 6 chữ số!', 'warning');
-          document.getElementById('login-am-new-pin').focus();
+          if (pinNewInput) pinNewInput.focus();
           return;
         }
 
-        if (!/^d+$/.test(newPin)) {
+        if (!/^[0-9]+$/.test(newPinVal)) {
           showToast('⚠️ Mã PIN chỉ được chứa các chữ số (0-9)!', 'warning');
-          document.getElementById('login-am-new-pin').focus();
+          if (pinNewInput) pinNewInput.focus();
           return;
         }
 
-        if (newPin !== confirmPin) {
-          showToast('⚠️ Mã PIN xác nhận không trùng khớp!', 'error');
-          document.getElementById('login-am-confirm-pin').focus();
+        if (newPinVal !== confirmPinVal) {
+          showToast('⚠️ Mã PIN xác nhận không trùng khớp! Vui lòng nhập lại ô xác nhận.', 'error');
+          if (pinConfirmInput) {
+            pinConfirmInput.value = '';
+            pinConfirmInput.focus();
+          }
           return;
         }
 
-        // Save new PIN
-        setAmPin(matchedAM.id, matchedAM.name, newPin);
+        // Save new / updated PIN
+        setAmPin(matchedAM.id, matchedAM.name, newPinVal);
+        isResettingPinMode = false;
         showToast(`🎉 Đã thiết lập mã PIN bảo mật cho AM ${matchedAM.name} thành công!`, 'success');
-        sendAdminLoginNotification('setup-pin@system.local', `🔒 KHỞI TẠO PIN BẢO MẬT: AM ${matchedAM.name} (Mã: ${matchedAM.id})`);
+        try {
+          sendAdminLoginNotification('setup-pin@system.local', `🔒 KHỞI TẠO / ĐẶT LẠI PIN: AM ${matchedAM.name} (Mã: ${matchedAM.id})`);
+        } catch(err) {}
+      } else {
+        // --- VERIFY EXISTING PIN BRANCH ---
+        if (!verifyPinVal) {
+          showToast('⚠️ Vui lòng nhập mã PIN bảo mật cá nhân của bạn!', 'warning');
+          if (pinVerifyInput) pinVerifyInput.focus();
+          return;
+        }
+
+        if (verifyPinVal !== record.pin) {
+          showToast(`❌ Mã PIN không chính xác! Bạn hãy bấm "Quên / Đặt lại mã PIN mới" để tạo lại nhé.`, 'error');
+          try {
+            sendAdminLoginNotification('failed-pin@system.local', `⚠️ CẢNH BÁO NHẬP SAI PIN CỦA AM: ${matchedAM.name} (Mã: ${matchedAM.id})`);
+            logAuditEvent('Hệ thống', `Cảnh báo: Nhập sai mã PIN của AM ${matchedAM.name} (Mã: ${matchedAM.id})`, 'warning');
+          } catch(err) {}
+          if (pinVerifyInput) {
+            pinVerifyInput.value = '';
+            pinVerifyInput.focus();
+          }
+          return;
+        }
       }
 
       const userObj = {
@@ -2711,20 +2803,27 @@
         loginTime: new Date().toISOString()
       };
 
-      if (remember) {
-        localStorage.setItem('hcm_bi_auth_user', JSON.stringify(userObj));
-        localStorage.setItem('hcm_bi_remembered_am', JSON.stringify({ id: matchedAM.id, name: matchedAM.name, email: matchedAM.email }));
-      } else {
-        sessionStorage.setItem('hcm_bi_auth_user', JSON.stringify(userObj));
-      }
+      try {
+        if (remember) {
+          localStorage.setItem('hcm_bi_auth_user', JSON.stringify(userObj));
+          localStorage.setItem('hcm_bi_remembered_am', JSON.stringify({ id: matchedAM.id, name: matchedAM.name, email: matchedAM.email }));
+        } else {
+          sessionStorage.setItem('hcm_bi_auth_user', JSON.stringify(userObj));
+        }
+      } catch(err) {}
 
       AppState.currentUser = userObj;
       AppState.scopedAM = matchedAM.name;
 
-      logAuditEvent(userObj.name, `Đăng nhập cá nhân thành công qua xác thực 3 yếu tố (Mã: ${matchedAM.id})`, 'success');
-      sendAdminLoginNotification(matchedAM.email, `${matchedAM.name} (Mã: ${matchedAM.id})`);
+      try {
+        logAuditEvent(userObj.name, `Đăng nhập cá nhân thành công qua xác thực 3 yếu tố (Mã: ${matchedAM.id})`, 'success');
+        sendAdminLoginNotification(matchedAM.email, `${matchedAM.name} (Mã: ${matchedAM.id})`);
+      } catch(err) {}
 
-      triggerConfetti();
+      try {
+        triggerConfetti();
+      } catch(err) {}
+
       showToast(`Xin chào ${matchedAM.name}! Đã mở bảng số liệu cá nhân của bạn.`, 'success');
       unlockDashboard(userObj);
     }
@@ -3870,76 +3969,64 @@ Chi tiết kỹ thuật: ${resData.description}`);
         </div>
       `;
 
-      // 3. Leaderboard / Personal Standing Bar Chart
-      const leaderCtx = document.getElementById('chart-leaderboard').getContext('2d');
-      if (AppState.charts.leaderboard) AppState.charts.leaderboard.destroy();
+      // 3. Leaderboard Chart (Rendered strictly for Admin Regional view; Hidden for Individual AMs)
+      const chart3Container = document.getElementById('chart3-container');
+      const chart4Container = document.getElementById('chart4-container');
 
       if (personalItem) {
-        const sortedAll = [...currentList].sort((a, b) => (b.tong_hh || 0) - (a.tong_hh || 0));
-        const myRank = sortedAll.findIndex(i => normalizeVN(i.ten_am) === normalizeVN(personalItem.ten_am)) + 1;
-        const avgRegional = currentList.length ? (currentList.reduce((acc, i) => acc + (i.tong_hh || 0), 0) / currentList.length) : 0;
-        const maxRegional = sortedAll[0] ? (sortedAll[0].tong_hh || 0) : 0;
-
-        document.getElementById('chart3-title').innerHTML = `<i data-lucide="award" class="w-4 h-4 text-amber-500"></i> Xếp Hạng & Vị Thế Thu Nhập Của Bạn`;
-        document.getElementById('chart3-subtitle').textContent = `Bạn đang xếp hạng #${myRank || 1} / ${currentList.length} Quản lý khu vực`;
-
-        AppState.charts.leaderboard = new Chart(leaderCtx, {
-          type: 'bar',
-          data: {
-            labels: ['Thu Nhập Của Bạn', 'Trung Bình Vùng HCM', 'Mức Cao Nhất Vùng'],
-            datasets: [{
-              label: 'Tổng thu nhập (₫)',
-              data: [personalItem.tong_hh || 0, avgRegional, maxRegional],
-              backgroundColor: ['#0ea5e9', '#94a3b8', '#f59e0b'],
-              borderRadius: 6
-            }]
-          },
-          options: {
-            indexAxis: 'y',
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: { display: false },
-              tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ${formatVND(ctx.raw)}` } }
-            },
-            scales: {
-              x: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 10 }, callback: (v) => (v / 1e6).toFixed(0) + 'M' } },
-              y: { grid: { display: false }, ticks: { color: textColor, font: { size: 10, weight: 'bold' } } }
-            }
-          }
-        });
+        // Individual AM view: REMOVE / HIDE Ranking & Income Position section completely
+        if (chart3Container) chart3Container.classList.add('hidden');
+        if (chart4Container) {
+          chart4Container.className = 'lg:col-span-12 bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col';
+        }
+        if (AppState.charts.leaderboard) {
+          AppState.charts.leaderboard.destroy();
+          AppState.charts.leaderboard = null;
+        }
       } else {
-        document.getElementById('chart3-title').innerHTML = `<i data-lucide="trophy" class="w-4 h-4 text-amber-500"></i> Bảng Xếp Hạng Thu Nhập AM (Leaderboard)`;
-        document.getElementById('chart3-subtitle').textContent = 'Top 10 AM có mức tổng hoa hồng thực nhận cao nhất';
+        // Regional Admin view: Show Leaderboard
+        if (chart3Container) chart3Container.classList.remove('hidden');
+        if (chart4Container) {
+          chart4Container.className = 'lg:col-span-6 bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col';
+        }
 
-        const top10Ranked = [...currentList].sort((a, b) => (b.tong_hh || 0) - (a.tong_hh || 0)).slice(0, 10);
-        AppState.charts.leaderboard = new Chart(leaderCtx, {
-          type: 'bar',
-          data: {
-            labels: top10Ranked.map(i => (i.ten_am || '').split(' ').slice(-2).join(' ')),
-            datasets: [{
-              label: 'Tổng hoa hồng thực nhận',
-              data: top10Ranked.map(i => i.tong_hh || 0),
-              backgroundColor: (ctx) => {
-                if (ctx.dataIndex === 0) return '#f59e0b';
-                if (ctx.dataIndex === 1) return '#94a3b8';
-                if (ctx.dataIndex === 2) return '#d97706';
-                return '#0ea5e9';
-              },
-              borderRadius: 6
-            }]
-          },
-          options: {
-            indexAxis: 'y',
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => `Thực nhận: ${formatVND(ctx.raw)}` } } },
-            scales: {
-              x: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 10 }, callback: (v) => (v / 1e6).toFixed(0) + 'M' } },
-              y: { grid: { display: false }, ticks: { color: textColor, font: { size: 10, weight: 'bold' } } }
+        const leaderCanvas = document.getElementById('chart-leaderboard');
+        if (leaderCanvas) {
+          const leaderCtx = leaderCanvas.getContext('2d');
+          if (AppState.charts.leaderboard) AppState.charts.leaderboard.destroy();
+
+          document.getElementById('chart3-title').innerHTML = `<i data-lucide="trophy" class="w-4 h-4 text-amber-500"></i> Bảng Xếp Hạng Thu Nhập AM (Leaderboard)`;
+          document.getElementById('chart3-subtitle').textContent = 'Top 10 AM có mức tổng hoa hồng thực nhận cao nhất';
+
+          const top10Ranked = [...currentList].sort((a, b) => (b.tong_hh || 0) - (a.tong_hh || 0)).slice(0, 10);
+          AppState.charts.leaderboard = new Chart(leaderCtx, {
+            type: 'bar',
+            data: {
+              labels: top10Ranked.map(i => (i.ten_am || '').split(' ').slice(-2).join(' ')),
+              datasets: [{
+                label: 'Tổng hoa hồng thực nhận',
+                data: top10Ranked.map(i => i.tong_hh || 0),
+                backgroundColor: (ctx) => {
+                  if (ctx.dataIndex === 0) return '#f59e0b';
+                  if (ctx.dataIndex === 1) return '#94a3b8';
+                  if (ctx.dataIndex === 2) return '#d97706';
+                  return '#0ea5e9';
+                },
+                borderRadius: 6
+              }]
+            },
+            options: {
+              indexAxis: 'y',
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => `Thực nhận: ${formatVND(ctx.raw)}` } } },
+              scales: {
+                x: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 10 }, callback: (v) => (v / 1e6).toFixed(0) + 'M' } },
+                y: { grid: { display: false }, ticks: { color: textColor, font: { size: 10, weight: 'bold' } } }
+              }
             }
-          }
-        });
+          });
+        }
       }
 
       // 4. Multi-month Trend Chart (Personalized across 7 months vs Regional Fund)
