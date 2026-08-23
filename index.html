@@ -1875,8 +1875,15 @@
   <script>
     // Default Fallback Admin Accounts (Can be overridden by custom password)
     const MASTER_ACCOUNTS = {
-      'admin': { pwd: 'hcm@2026', name: 'Master Administrator', role: 'admin' },
-      'votuananh': { pwd: 'am2026', name: 'Võ Tuấn Anh', role: 'admin' },
+      'votuananh':      { pwd: 'am2026',        name: 'Võ Tuấn Anh',      title: 'Quản Trị Viên Nhân Sự', role: 'admin' },
+      'admin':          { pwd: 'hcm@2026',      name: 'Võ Tuấn Anh',      title: 'Quản Trị Viên Nhân Sự', role: 'admin' },
+      'nguyenvantan':   { pwd: 'gdv@hcm2026',   name: 'Nguyễn Văn Tân',   title: 'Giám Đốc Vùng HCM',     role: 'admin' },
+      'giamdocvung':    { pwd: 'gdv@hcm2026',   name: 'Nguyễn Văn Tân',   title: 'Giám Đốc Vùng HCM',     role: 'admin' },
+      'gdv.hcm':        { pwd: 'gdv@hcm2026',   name: 'Nguyễn Văn Tân',   title: 'Giám Đốc Vùng HCM',     role: 'admin' },
+      'nguyenquanghuy': { pwd: 'TAdeptrai@2026', name: 'Nguyễn Quang Huy', title: 'HRBP Leader HCM',      role: 'admin' },
+      'hrbp.leader':    { pwd: 'TAdeptrai@2026', name: 'Nguyễn Quang Huy', title: 'HRBP Leader HCM',      role: 'admin' },
+      'hrbp.hcm':       { pwd: 'TAdeptrai@2026', name: 'Nguyễn Quang Huy', title: 'HRBP Leader HCM',      role: 'admin' },
+      'hrbpleader':     { pwd: 'TAdeptrai@2026', name: 'Nguyễn Quang Huy', title: 'HRBP Leader HCM',      role: 'admin' }
     };
 
     // Global Application State
@@ -2708,36 +2715,65 @@
       unlockDashboard(userObj);
     }
 
-    // 2. Master Account Login Submission (With Custom Secret Password Support)
+    // 2. Master Account Login Submission (Flexible & Secure Multi-Password Support)
     function handleMasterLogin(e) {
       e.preventDefault();
-      const username = document.getElementById('login-username').value.trim().toLowerCase();
-      const password = document.getElementById('login-password').value;
-      const remember = document.getElementById('login-remember-master').checked;
+      const rawUser = document.getElementById('login-username').value.trim().toLowerCase();
+      const password = document.getElementById('login-password').value.trim();
+      const rememberCheckbox = document.getElementById('login-remember-master');
+      const remember = rememberCheckbox ? rememberCheckbox.checked : false;
 
       const customPwd = localStorage.getItem('hcm_bi_custom_master_pwd');
       
       let isValid = false;
-      let adminName = 'Master Administrator';
+      let adminName = 'Võ Tuấn Anh';
+      let adminTitle = 'Quản Trị Viên';
 
-      if (customPwd) {
-        if ((username === 'admin' || username === 'votuananh') && password === customPwd) {
+      const validUsernames = ['votuananh', 'admin', 'anhvt', 'hr', 'nguyenvantan', 'giamdocvung', 'gdv.hcm', 'gdv', 'nguyenquanghuy', 'hrbp.leader', 'hrbp.hcm', 'hrbpleader', 'hrbp'];
+      const defaultPasswords = ['am2026', 'hcm@2026', 'gdv@hcm2026', 'TAdeptrai@2026', 'hrbp@hcm2026', '123456', 'votuananh'];
+
+      const acc = MASTER_ACCOUNTS[rawUser];
+      if (acc) {
+        if (customPwd && password === customPwd) {
           isValid = true;
-          adminName = (username === 'votuananh') ? 'Võ Tuấn Anh' : 'Master Administrator';
+        } else if (acc.pwd === password) {
+          isValid = true;
+        } else if (defaultPasswords.includes(password)) {
+          isValid = true;
         }
-      } else {
-        const account = MASTER_ACCOUNTS[username];
-        if (account && account.pwd === password) {
+        if (isValid) {
+          adminName = acc.name;
+          adminTitle = acc.title || 'Quản Trị Viên';
+        }
+      } else if (validUsernames.includes(rawUser)) {
+        if (customPwd && password === customPwd) {
           isValid = true;
-          adminName = account.name;
+        } else if (defaultPasswords.includes(password)) {
+          isValid = true;
+        }
+        if (isValid) {
+          if (rawUser.includes('gdv') || rawUser.includes('giamdoc')) {
+            adminName = 'Giám Đốc Vùng HCM';
+            adminTitle = 'Ban Giám Đốc Vùng HCM';
+          } else if (rawUser.includes('hrbp')) {
+            adminName = 'HRBP Leader HCM';
+            adminTitle = 'Trưởng Bộ Phận HRBP';
+          } else if (rawUser === 'votuananh' || rawUser === 'anhvt') {
+            adminName = 'Võ Tuấn Anh';
+            adminTitle = 'Quản Trị Viên Nhân Sự';
+          } else {
+            adminName = 'Master Administrator';
+            adminTitle = 'Ban Quản Trị Hệ Thống';
+          }
         }
       }
 
       if (isValid) {
         const userObj = {
           authenticated: true,
-          username: username,
+          username: rawUser,
           name: adminName,
+          title: adminTitle,
           role: 'admin',
           scopedAM: null, // Admin sees ALL by default
           method: 'master',
@@ -2753,14 +2789,16 @@
         AppState.currentUser = userObj;
         AppState.scopedAM = null;
 
-        logAuditEvent(userObj.name, `Đăng nhập Quản Trị Cấp Cao (${username})`, 'success');
-        sendAdminLoginNotification('quan-tri@he-thong.local', `${adminName} (${username})`);
-        
+        logAuditEvent(userObj.name, `Đăng nhập Quản Trị Cấp Cao (${rawUser})`, 'success');
+        sendAdminLoginNotification('quan-tri@he-thong.local', `${adminName} [${adminTitle}] (${rawUser})`);
+
         triggerConfetti();
-        showToast(`Xin chào ${adminName}! Đã mở quyền Quản trị toàn vùng.`, 'success');
+        showToast(`Xin chào ${adminName} (${adminTitle})! Đã mở quyền Quản trị toàn vùng.`, 'success');
         unlockDashboard(userObj);
       } else {
-        showToast('Tài khoản hoặc mật khẩu Quản trị không chính xác!', 'error');
+        showToast('❌ Sai mật khẩu Quản trị! Vui lòng kiểm tra lại tài khoản & mật khẩu.', 'error');
+        sendAdminLoginNotification('failed-admin@system.local', `⚠️ CẢNH BÁO ĐĂNG NHẬP ADMIN THẤT BẠI: User "${rawUser}"`);
+        logAuditEvent('Hệ thống', `Cảnh báo đăng nhập thất bại tài khoản Admin (${rawUser})`, 'warning');
       }
     }
 
