@@ -460,7 +460,7 @@
 
           <div class="flex items-center justify-between text-xs pt-1">
             <label class="flex items-center gap-2 cursor-pointer select-none text-slate-300 hover:text-white transition">
-              <input type="checkbox" id="login-remember-master" class="w-4 h-4 rounded bg-slate-800 border-slate-700 text-brand-600 focus:ring-brand-500 cursor-pointer">
+              <input type="checkbox" id="login-remember-master" checked class="w-4 h-4 rounded bg-slate-800 border-slate-700 text-brand-600 focus:ring-brand-500 cursor-pointer">
               <span>Ghi nhớ thiết bị này (Tự động mở trên máy của bạn)</span>
             </label>
           </div>
@@ -2248,6 +2248,8 @@
         nameBtn.className = 'flex-1 py-2.5 rounded-lg text-slate-400 hover:text-white transition flex items-center justify-center gap-2 text-xs font-semibold';
         formMaster.classList.remove('hidden');
         formName.classList.add('hidden');
+        const chkMaster = document.getElementById('login-remember-master');
+        if (chkMaster) chkMaster.checked = true;
       }
       resetMascot();
       lucide.createIcons();
