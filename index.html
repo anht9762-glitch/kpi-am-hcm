@@ -1267,9 +1267,39 @@
                         <td class="py-2 px-2 text-slate-200 font-medium whitespace-nowrap">10. Số lượng Bưu cục quản lý</td>
                         <td id="sim-act-bc" class="py-2 px-2 text-right font-mono text-slate-400 whitespace-nowrap">0</td>
                         <td class="py-2 px-2 text-right">
-                          <input type="number" id="sim-in-bc" step="1" min="0" max="20" class="w-20 px-2 py-1 rounded-lg bg-slate-900 border border-slate-700 text-right font-mono text-xs text-white focus:ring-1 focus:ring-brand-400 focus:outline-none" value="0">
+                          <input type="number" id="sim-in-bc" step="1" min="0" max="30" class="w-20 px-2 py-1 rounded-lg bg-slate-900 border border-slate-700 text-right font-mono text-xs text-white focus:ring-1 focus:ring-brand-400 focus:outline-none" value="0">
                         </td>
                         <td id="sim-diff-bc" class="py-2 px-2 text-right font-mono font-semibold text-slate-400 whitespace-nowrap">0</td>
+                      </tr>
+
+                      <!-- 11. Ngày công (Thực tế / Chuẩn) -->
+                      <tr class="hover:bg-slate-800/50 transition">
+                        <td class="py-2 px-2 text-slate-200 font-medium whitespace-nowrap">11. Ngày công (Thực tế / Chuẩn)</td>
+                        <td id="sim-act-workdays" class="py-2 px-2 text-right font-mono text-slate-400 whitespace-nowrap">26 / 26</td>
+                        <td class="py-2 px-2 text-right">
+                          <div class="inline-flex items-center gap-1 justify-end">
+                            <input type="number" id="sim-in-workdays" step="0.5" min="0" max="31" class="w-14 px-1.5 py-1 rounded-lg bg-slate-900 border border-slate-700 text-right font-mono text-xs text-white focus:ring-1 focus:ring-brand-400 focus:outline-none" value="26">
+                            <span class="text-slate-400 text-xs">/</span>
+                            <input type="number" id="sim-in-std-workdays" step="1" min="1" max="31" class="w-14 px-1.5 py-1 rounded-lg bg-slate-900 border border-slate-700 text-right font-mono text-xs text-white focus:ring-1 focus:ring-brand-400 focus:outline-none" value="26">
+                          </div>
+                        </td>
+                        <td id="sim-diff-workdays" class="py-2 px-2 text-right font-mono font-semibold text-slate-400 whitespace-nowrap">100%</td>
+                      </tr>
+
+                      <!-- 12. Phụ cấp kiêm nhiệm Bưu cục -->
+                      <tr class="bg-brand-500/5 hover:bg-brand-500/10 transition">
+                        <td class="py-2 px-2 text-brand-300 font-semibold whitespace-nowrap">
+                          <div class="flex items-center gap-1">
+                            <span>12. Phụ cấp kiêm nhiệm Bưu cục</span>
+                            <span class="text-[10px] text-slate-400 font-normal">(Tự động)</span>
+                          </div>
+                          <div id="sim-sub-allowance-info" class="text-[10px] text-slate-400 font-normal mt-0.5">
+                            DT TB/BC: 0 ₫ • Mức PC: 0 ₫
+                          </div>
+                        </td>
+                        <td id="sim-act-allowance" class="py-2 px-2 text-right font-mono text-brand-300 whitespace-nowrap">0&nbsp;₫</td>
+                        <td id="sim-val-allowance" class="py-2 px-2 text-right font-mono font-bold text-brand-400 whitespace-nowrap">0&nbsp;₫</td>
+                        <td id="sim-diff-allowance" class="py-2 px-2 text-right font-mono font-semibold text-slate-400 whitespace-nowrap">+0&nbsp;₫</td>
                       </tr>
                     </tbody>
                   </table>
@@ -27776,6 +27806,68 @@ const CalculationEngine = {
     };
   },
 
+  calculateConcurrentPostOfficeAllowance: function(bcCount, avgRevenuePerBC, actualWorkdays, standardWorkdays) {
+    if (!bcCount || bcCount < 6) {
+      return {
+        baseAllowance: 0,
+        actualAllowance: 0,
+        bcCount: bcCount || 0,
+        avgRev: avgRevenuePerBC || 0,
+        colIdx: 0,
+        colLabel: 'Dưới 6 BC (0 ₫)',
+        workdayRatio: 1.0,
+        tierName: 'Dưới 6 BC (0 ₫)'
+      };
+    }
+
+    // Official Allowance Matrix according to Policy:
+    // Rows: 6, 7, 8, 9, 10+ BC
+    // Columns: <= 800M (0), <= 1.6B (1), <= 2.4B (2), > 2.4B (3)
+    const matrix = {
+      6:  [1500000, 2000000, 2000000, 2500000],
+      7:  [3000000, 3000000, 3500000, 3500000],
+      8:  [4000000, 4000000, 5000000, 5000000],
+      9:  [5500000, 5500000, 6000000, 6000000],
+      10: [6500000, 6500000, 7000000, 7000000]
+    };
+
+    const rowKey = Math.min(10, Math.max(6, Math.round(bcCount)));
+    const rowData = matrix[rowKey] || matrix[10];
+
+    let colIdx = 0;
+    let colLabel = '≤ 800M';
+    if (avgRevenuePerBC <= 800000000) {
+      colIdx = 0;
+      colLabel = '≤ 800M';
+    } else if (avgRevenuePerBC <= 1600000000) {
+      colIdx = 1;
+      colLabel = '≤ 1.6B';
+    } else if (avgRevenuePerBC <= 2400000000) {
+      colIdx = 2;
+      colLabel = '≤ 2.4B';
+    } else {
+      colIdx = 3;
+      colLabel = '≤ 3.2B / > 2.4B';
+    }
+
+    const baseAllowance = rowData[colIdx];
+    const actDays = (actualWorkdays !== undefined && actualWorkdays !== null) ? Number(actualWorkdays) : 26;
+    const stdDays = (standardWorkdays !== undefined && standardWorkdays !== null && standardWorkdays > 0) ? Number(standardWorkdays) : 26;
+    const workdayRatio = Math.max(0, actDays / stdDays);
+    const actualAllowance = Math.round(baseAllowance * workdayRatio);
+
+    return {
+      baseAllowance: baseAllowance,
+      actualAllowance: actualAllowance,
+      bcCount: bcCount,
+      avgRev: avgRevenuePerBC,
+      colIdx: colIdx,
+      colLabel: colLabel,
+      workdayRatio: workdayRatio,
+      tierName: `${rowKey} BC (${colLabel})`
+    };
+  },
+
   evaluateRecord: function(record, policyVersion) {
     if (!record) return null;
     var gtcKpi = this.calculateGTC_KPI(record.gtc_actual, record.gtc_target);
@@ -31143,7 +31235,7 @@ Chi tiết kỹ thuật: ${resData.description}`);
         if (simBadge) simBadge.classList.add('hidden');
       }
 
-      // Extract Actual values for the 10 fields
+      // Extract Actual values for the fields
       const gtcKpi = (am.gtc_kpi !== undefined ? am.gtc_kpi : 1.0) * 100;
       const tiktokKpi = (am.tiktok_kpi !== undefined ? am.tiktok_kpi : 1.0) * 100;
       const fdiKpi = (am.fdi_kpi !== undefined ? am.fdi_kpi : 1.0) * 100;
@@ -31156,6 +31248,7 @@ Chi tiết kỹ thuật: ${resData.description}`);
       const baseSalary = am.luong_cb || 20000000;
       const phuCap = am.phu_cap || 0;
       const bcCount = am.so_luong_bc !== undefined ? am.so_luong_bc : (phuCap > 0 ? Math.round(phuCap / 2000000) : 0);
+      const actualWorkdays = (am.ngay_cong_days !== undefined && am.ngay_cong_days !== null) ? am.ngay_cong_days : 26;
       const actualTotal = am.tong_hh || (baseSalary + (am.chi_k20 || 0));
 
       // 1. Set Actual columns in Table 1
@@ -31171,6 +31264,8 @@ Chi tiết kỹ thuật: ${resData.description}`);
       setTxt('sim-act-so-rew', formatVND(soRew));
       setTxt('sim-act-base', formatVND(baseSalary));
       setTxt('sim-act-bc', bcCount.toString());
+      setTxt('sim-act-workdays', `${actualWorkdays} / 26`);
+      setTxt('sim-act-allowance', formatVND(phuCap));
       setTxt('sim-act-total', formatVND(actualTotal));
 
       // 2. Set Default inputs in Table 1
@@ -31185,6 +31280,8 @@ Chi tiết kỹ thuật: ${resData.description}`);
       setVal('sim-in-so-rew', soRew);
       setVal('sim-in-base', baseSalary);
       setVal('sim-in-bc', bcCount);
+      setVal('sim-in-workdays', actualWorkdays);
+      setVal('sim-in-std-workdays', 26);
 
       // 3. Set Default inputs in Table 2 (Reverse Solver)
       if (gtcRew > 0) setVal('sim-rev-in-gtc', gtcRew);
@@ -31248,7 +31345,7 @@ Chi tiết kỹ thuật: ${resData.description}`);
       }
 
       // Attach inputs for Table 1 (Simulation)
-      ['gtc', 'tiktok', 'fdi', 'retention', 'gtc-rew', 'ltc-rew', 'so-rew', 'base', 'bc'].forEach(key => {
+      ['gtc', 'tiktok', 'fdi', 'retention', 'gtc-rew', 'ltc-rew', 'so-rew', 'base', 'bc', 'workdays', 'std-workdays'].forEach(key => {
         const input = document.getElementById(`sim-in-${key}`);
         if (input) {
           input.addEventListener('input', calculateSimulation);
@@ -31316,6 +31413,8 @@ Chi tiết kỹ thuật: ${resData.description}`);
       const inSoRew = getNum('sim-in-so-rew');
       const inBase = getNum('sim-in-base');
       const inBC = getNum('sim-in-bc');
+      const inWorkdays = getNum('sim-in-workdays') || 26;
+      const inStdWorkdays = getNum('sim-in-std-workdays') || 26;
 
       const am = AppState.selectedAM || getActiveAM() || {};
       const actGTC = (am.gtc_kpi !== undefined ? am.gtc_kpi : 1.0) * 100;
@@ -31330,9 +31429,10 @@ Chi tiết kỹ thuật: ${resData.description}`);
       const actBase = am.luong_cb || 20000000;
       const actPhuCap = am.phu_cap || 0;
       const actBC = am.so_luong_bc !== undefined ? am.so_luong_bc : (actPhuCap > 0 ? Math.round(actPhuCap / 2000000) : 0);
+      const actWorkdays = (am.ngay_cong_days !== undefined && am.ngay_cong_days !== null) ? am.ngay_cong_days : 26;
       const actTotal = am.tong_hh || (actBase + (am.chi_k20 || 0));
 
-      // Delta calculations for 10 fields
+      // Delta calculations for fields
       const formatDiffPct = (simVal, actVal) => {
         const diff = simVal - actVal;
         const sign = diff > 0 ? '+' : '';
@@ -31347,6 +31447,8 @@ Chi tiết kỹ thuật: ${resData.description}`);
       };
 
       const setHTML = (id, html) => { const el = document.getElementById(id); if (el) el.innerHTML = html; };
+      const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+
       setHTML('sim-diff-gtc', formatDiffPct(inGTC, actGTC));
       setHTML('sim-diff-tiktok', formatDiffPct(inTikTok, actTikTok));
       setHTML('sim-diff-fdi', formatDiffPct(inFDI, actFDI));
@@ -31354,7 +31456,6 @@ Chi tiết kỹ thuật: ${resData.description}`);
 
       // Calculate Ops KPI using CalculationEngine:
       const simOpsKpi = CalculationEngine.calculateOperationKPI(inGTC / 100, inTikTok / 100, inFDI / 100, inRet / 100) * 100;
-      const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
       setTxt('sim-val-opskpi', simOpsKpi.toFixed(2) + '%');
       setHTML('sim-diff-opskpi', formatDiffPct(simOpsKpi, actOpsKpi));
 
@@ -31372,10 +31473,38 @@ Chi tiết kỹ thuật: ${resData.description}`);
       const totalDtRew = inGtcRew + inLtcRew + inSoRew;
       const simCommission = Math.round(totalDtRew * (simOpsKpi / 100));
 
-      // 2. Allowance calculation:
-      const bcAllowance = inBC > 0 ? (inBC * 2000000) : (inBC === actBC ? actPhuCap : 0);
+      // 2. Reverse solve GTC & LTC revenues using progressive tier engine:
+      const gtcRevSol = CalculationEngine.reverseSolveProgressiveRevenue(inGtcRew, 'GTC');
+      const ltcRevSol = CalculationEngine.reverseSolveProgressiveRevenue(inLtcRew, 'LTC');
+      const totalRev = (gtcRevSol.revenue || 0) + (ltcRevSol.revenue || 0);
+      const avgRevPerBC = inBC > 0 ? (totalRev / inBC) : 0;
 
-      // 3. Total Simulated Salary:
+      // 3. Post Office Concurrent Allowance calculation via policy matrix and workdays pro-rata:
+      const pcResult = CalculationEngine.calculateConcurrentPostOfficeAllowance(inBC, avgRevPerBC, inWorkdays, inStdWorkdays);
+      const simPhuCap = pcResult.actualAllowance;
+
+      // Update Post Office Subtext & Info:
+      const elSubPc = document.getElementById('sim-sub-allowance-info');
+      if (elSubPc) {
+        if (inBC >= 6) {
+          const revAvgM = (avgRevPerBC / 1e6).toFixed(0);
+          elSubPc.innerHTML = `DT TB/BC: <strong class="text-brand-300 font-mono">${revAvgM} triệu ₫</strong> (${pcResult.colLabel}) • Mức PC: <strong class="text-brand-300 font-mono">${formatVND(pcResult.baseAllowance)}</strong> • Công: <strong class="font-mono">${inWorkdays}/${inStdWorkdays}</strong>`;
+        } else if (inBC > 0) {
+          elSubPc.innerHTML = `<span class="text-slate-400">Số BC = ${inBC} (&lt; 6 BC: Không thuộc diện phụ cấp kiêm nhiệm)</span>`;
+        } else {
+          elSubPc.innerHTML = `<span class="text-slate-400">Chưa nhập số lượng bưu cục quản lý</span>`;
+        }
+      }
+
+      setTxt('sim-act-allowance', formatVND(actPhuCap));
+      setTxt('sim-val-allowance', formatVND(simPhuCap));
+      setHTML('sim-diff-allowance', formatDiffVND(simPhuCap, actPhuCap));
+
+      // Workday ratio diff
+      const workdayRatio = inStdWorkdays > 0 ? (inWorkdays / inStdWorkdays) * 100 : 100;
+      setHTML('sim-diff-workdays', `<span class="text-slate-300 font-mono">${workdayRatio.toFixed(1)}%</span>`);
+
+      // 4. Total Simulated Salary:
       const isBaseline = (
         Math.abs(inGTC - actGTC) < 0.05 &&
         Math.abs(inTikTok - actTikTok) < 0.05 &&
@@ -31385,7 +31514,9 @@ Chi tiết kỹ thuật: ${resData.description}`);
         Math.abs(inLtcRew - actLtcRew) < 1 &&
         Math.abs(inSoRew - actSoRew) < 1 &&
         Math.abs(inBase - actBase) < 1 &&
-        inBC === actBC
+        inBC === actBC &&
+        Math.abs(inWorkdays - actWorkdays) < 0.01 &&
+        inStdWorkdays === 26
       );
 
       let simTotal;
@@ -31395,7 +31526,7 @@ Chi tiết kỹ thuật: ${resData.description}`);
         const baselineActualComm = Math.round((actGtcRew + actLtcRew + actSoRew) * (actOpsKpi / 100));
         const commDelta = simCommission - baselineActualComm;
         const baseDelta = inBase - actBase;
-        const bcDelta = bcAllowance - actPhuCap;
+        const bcDelta = simPhuCap - actPhuCap;
         simTotal = actTotal + commDelta + baseDelta + bcDelta;
       }
 
