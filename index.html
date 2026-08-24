@@ -652,35 +652,39 @@
               </div>
 
               <!-- Popover Dropdown Panel -->
-              <div id="month-multiselect-popover" class="hidden absolute left-0 top-full mt-2 z-50 w-[320px] sm:w-[380px] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 p-4 animate-in fade-in slide-in-from-top-2 duration-150">
+              <div 
+                id="month-multiselect-popover" 
+                onclick="event.stopPropagation()"
+                class="hidden absolute left-0 top-full mt-2 z-50 w-[330px] sm:w-[400px] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 p-4 animate-in fade-in slide-in-from-top-2 duration-150"
+              >
                 <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-                  <span class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
-                    <i data-lucide="check-square" class="w-3.5 h-3.5 text-brand-500"></i>
+                  <span class="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                    <i data-lucide="calendar-check" class="w-4 h-4 text-brand-500"></i>
                     Chọn Các Tháng Cần Xem
                   </span>
-                  <span id="month-selected-count-badge" class="px-2 py-0.5 text-[11px] font-bold rounded-full bg-brand-100 dark:bg-brand-950/80 text-brand-700 dark:text-brand-300">
+                  <span id="month-selected-count-badge" class="px-2.5 py-1 text-[11px] font-bold rounded-full bg-brand-50 dark:bg-brand-950/80 text-brand-700 dark:text-brand-300 border border-brand-200 dark:border-brand-800">
                     Đã chọn: 1 tháng
                   </span>
                 </div>
 
                 <!-- Quick Preset Buttons -->
                 <div class="grid grid-cols-3 gap-1.5 py-3 border-b border-slate-100 dark:border-slate-800 text-[11px]">
-                  <button type="button" onclick="selectMonthPreset('ALL')" class="px-2 py-1.5 rounded-lg bg-slate-100 hover:bg-brand-50 dark:bg-slate-800 dark:hover:bg-brand-950/60 font-semibold text-slate-700 dark:text-slate-300 hover:text-brand-600 transition text-center">
+                  <button type="button" onclick="selectMonthPreset('ALL', event)" class="px-2 py-1.5 rounded-lg bg-slate-100 hover:bg-brand-50 dark:bg-slate-800 dark:hover:bg-brand-950/60 font-semibold text-slate-700 dark:text-slate-300 hover:text-brand-600 transition text-center">
                     🌐 Cả 12 Tháng
                   </button>
-                  <button type="button" onclick="selectMonthPreset('H1')" class="px-2 py-1.5 rounded-lg bg-slate-100 hover:bg-brand-50 dark:bg-slate-800 dark:hover:bg-brand-950/60 font-semibold text-slate-700 dark:text-slate-300 hover:text-brand-600 transition text-center">
+                  <button type="button" onclick="selectMonthPreset('H1', event)" class="px-2 py-1.5 rounded-lg bg-slate-100 hover:bg-brand-50 dark:bg-slate-800 dark:hover:bg-brand-950/60 font-semibold text-slate-700 dark:text-slate-300 hover:text-brand-600 transition text-center">
                     📅 6 Tháng (T1-T6)
                   </button>
-                  <button type="button" onclick="selectMonthPreset('LATEST')" class="px-2 py-1.5 rounded-lg bg-slate-100 hover:bg-brand-50 dark:bg-slate-800 dark:hover:bg-brand-950/60 font-semibold text-slate-700 dark:text-slate-300 hover:text-brand-600 transition text-center">
+                  <button type="button" onclick="selectMonthPreset('LATEST', event)" class="px-2 py-1.5 rounded-lg bg-slate-100 hover:bg-brand-50 dark:bg-slate-800 dark:hover:bg-brand-950/60 font-semibold text-slate-700 dark:text-slate-300 hover:text-brand-600 transition text-center">
                     ⚡ Tháng 7 Mới
                   </button>
-                  <button type="button" onclick="selectMonthPreset('Q1')" class="px-2 py-1.5 rounded-lg bg-slate-100 hover:bg-brand-50 dark:bg-slate-800 dark:hover:bg-brand-950/60 font-semibold text-slate-700 dark:text-slate-300 hover:text-brand-600 transition text-center">
+                  <button type="button" onclick="selectMonthPreset('Q1', event)" class="px-2 py-1.5 rounded-lg bg-slate-100 hover:bg-brand-50 dark:bg-slate-800 dark:hover:bg-brand-950/60 font-semibold text-slate-700 dark:text-slate-300 hover:text-brand-600 transition text-center">
                     Quý 1 (T1-T3)
                   </button>
-                  <button type="button" onclick="selectMonthPreset('Q2')" class="px-2 py-1.5 rounded-lg bg-slate-100 hover:bg-brand-50 dark:bg-slate-800 dark:hover:bg-brand-950/60 font-semibold text-slate-700 dark:text-slate-300 hover:text-brand-600 transition text-center">
+                  <button type="button" onclick="selectMonthPreset('Q2', event)" class="px-2 py-1.5 rounded-lg bg-slate-100 hover:bg-brand-50 dark:bg-slate-800 dark:hover:bg-brand-950/60 font-semibold text-slate-700 dark:text-slate-300 hover:text-brand-600 transition text-center">
                     Quý 2 (T4-T6)
                   </button>
-                  <button type="button" onclick="selectMonthPreset('CLEAR')" class="px-2 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 font-semibold text-rose-600 dark:text-rose-400 transition text-center">
+                  <button type="button" onclick="selectMonthPreset('CLEAR', event)" class="px-2 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 font-semibold text-rose-600 dark:text-rose-400 transition text-center">
                     ✕ Bỏ Hết
                   </button>
                 </div>
@@ -690,10 +694,23 @@
                   <!-- 12 Month check items generated dynamically -->
                 </div>
 
-                <!-- Popover Footer -->
-                <div class="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800">
-                  <button type="button" onclick="toggleMonthPopover(false)" class="w-full py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs shadow-md transition text-center">
-                    Đóng & Xem Báo Cáo
+                <!-- Popover Footer with Confirm and Close Actions -->
+                <div class="flex items-center gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
+                  <button 
+                    id="btn-apply-month-selection"
+                    type="button" 
+                    onclick="applyMonthSelection(event)" 
+                    class="flex-1 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 active:scale-[0.98] text-white font-bold text-xs sm:text-sm shadow-md transition flex items-center justify-center gap-1.5"
+                  >
+                    <i data-lucide="check" class="w-4 h-4"></i>
+                    <span id="btn-apply-month-text">Xác Nhận & Tải Dữ Liệu</span>
+                  </button>
+                  <button 
+                    type="button" 
+                    onclick="toggleMonthPopover(false, event)" 
+                    class="px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold text-xs transition"
+                  >
+                    Đóng
                   </button>
                 </div>
               </div>
@@ -28092,20 +28109,22 @@ const GoogleSheetsSyncService = {
       if (AppState.currentMonth === 'ALL_MONTHS') {
         return getAllMonthsAggregatedData();
       }
-      return AppState.data[AppState.currentMonth] || [];
+      return AppState.data[AppState.currentMonth] || AppState.data['T07.2026'] || AppState.data['T01.2026'] || [];
     }
 
     // Resolve the active AM record for personal view (Precise ID + Name matching)
     function getActiveAM() {
-      const currentList = getCurrentMonthData();
-      if (!currentList.length) return null;
+      let currentList = getCurrentMonthData();
+      if (!currentList || !currentList.length) {
+        currentList = AppState.data['T07.2026'] || AppState.data['T01.2026'] || [];
+      }
 
       const scoped = AppState.scopedAM ? String(AppState.scopedAM).trim() : '';
       const normScoped = normalizeVN(scoped);
 
       // 1. Prioritize explicit scopedAM (when Admin selects an AM via Combobox)
       if (scoped) {
-        // Match by AM Code / ID
+        // Match by AM Code / ID in current data list
         let found = currentList.find(i => String(i.ma_am || '').trim() === scoped);
         if (found) return found;
 
@@ -28119,6 +28138,14 @@ const GoogleSheetsSyncService = {
           return iName.includes(normScoped) || normScoped.includes(iName);
         });
         if (found) return found;
+
+        // Match in Official Directory
+        if (typeof OFFICIAL_AM_DIRECTORY !== 'undefined' && OFFICIAL_AM_DIRECTORY.length) {
+          const dirFound = OFFICIAL_AM_DIRECTORY.find(i => String(i.id).trim() === scoped || normalizeVN(i.name) === normScoped);
+          if (dirFound) {
+            return { ma_am: dirFound.id, ten_am: dirFound.name, vung: 'HCM' };
+          }
+        }
       }
 
       // 2. Fallback to logged-in AM user
@@ -29713,13 +29740,19 @@ Chi tiết kỹ thuật: ${resData.description}`);
     }
 
     // Multi-Select Month Filter Component Logic (Custom Selection for AM & QTV)
-    function toggleMonthPopover(forceState) {
+    function toggleMonthPopover(forceState, event) {
+      if (event) event.stopPropagation();
       const popover = document.getElementById('month-multiselect-popover');
       const chevron = document.getElementById('month-popover-chevron');
       if (!popover) return;
 
       const isOpening = (forceState !== undefined) ? forceState : popover.classList.contains('hidden');
       if (isOpening) {
+        // Initialize temporary selection with current committed months
+        AppState.tempSelectedMonths = (AppState.selectedMonths && AppState.selectedMonths.length)
+          ? AppState.selectedMonths.slice()
+          : [7];
+
         popover.classList.remove('hidden');
         if (chevron) chevron.style.transform = 'rotate(180deg)';
         renderMonthsCheckboxGrid();
@@ -29734,21 +29767,28 @@ Chi tiết kỹ thuật: ${resData.description}`);
       const grid = document.getElementById('months-checkbox-grid');
       if (!grid) return;
 
+      const currentTemp = AppState.tempSelectedMonths || [];
+
       let html = '';
       for (let m = 1; m <= 12; m++) {
-        const isChecked = (AppState.selectedMonths || []).includes(m);
+        const isChecked = currentTemp.includes(m);
         const hasData = (m <= 7);
         const activeClass = isChecked
-          ? 'bg-brand-500 text-white border-brand-600 shadow-sm font-bold'
-          : 'bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-brand-400 font-medium';
+          ? 'bg-brand-600 text-white border-brand-700 shadow-md font-bold'
+          : 'bg-slate-50 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-brand-400 font-medium hover:bg-brand-50/50';
+        
         const dataBadge = hasData
           ? '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400" title="Đã có dữ liệu"></span>'
           : '<span class="w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-slate-600" title="Chưa phát sinh dữ liệu"></span>';
 
         html += `
-          <button type="button" onclick="toggleMonthCheckbox(${m})" class="flex items-center justify-between px-2.5 py-2 rounded-xl border text-xs transition select-none ${activeClass}">
-            <div class="flex items-center gap-1.5">
-              <span class="w-4 h-4 rounded flex items-center justify-center text-[10px] ${isChecked ? 'bg-white text-brand-600 font-bold' : 'border border-slate-300 dark:border-slate-600'}">
+          <button 
+            type="button" 
+            onclick="toggleMonthCheckbox(${m}, event)" 
+            class="flex items-center justify-between px-2.5 py-2.5 rounded-xl border text-xs transition active:scale-95 select-none ${activeClass}"
+          >
+            <div class="flex items-center gap-2">
+              <span class="w-4 h-4 rounded flex items-center justify-center text-[10px] ${isChecked ? 'bg-white text-brand-600 font-bold shadow-sm' : 'border border-slate-300 dark:border-slate-600 bg-white/50 dark:bg-slate-900/50'}">
                 ${isChecked ? '✓' : ''}
               </span>
               <span>Tháng ${m}</span>
@@ -29760,12 +29800,96 @@ Chi tiết kỹ thuật: ${resData.description}`);
       grid.innerHTML = html;
 
       // Update count badge & button label
-      const count = (AppState.selectedMonths || []).length;
+      const count = currentTemp.length;
       const countBadge = document.getElementById('month-selected-count-badge');
       if (countBadge) {
-        countBadge.textContent = count === 12 ? 'Cả 12 Tháng' : `Đã chọn: ${count} tháng`;
+        countBadge.textContent = count === 12 ? 'Cả 12 Tháng' : (count === 0 ? 'Chưa chọn tháng nào' : `Đã chọn: ${count} tháng`);
       }
+
+      const applyText = document.getElementById('btn-apply-month-text');
+      if (applyText) {
+        applyText.textContent = count > 0 ? `Xác Nhận & Tải (${count} Tháng)` : 'Xác Nhận & Tải Dữ Liệu';
+      }
+    }
+
+    function toggleMonthCheckbox(m, event) {
+      if (event) {
+        event.stopPropagation();
+        event.preventDefault();
+      }
+
+      if (!AppState.tempSelectedMonths) AppState.tempSelectedMonths = [];
+      const idx = AppState.tempSelectedMonths.indexOf(m);
+      if (idx !== -1) {
+        AppState.tempSelectedMonths.splice(idx, 1);
+      } else {
+        AppState.tempSelectedMonths.push(m);
+      }
+
+      renderMonthsCheckboxGrid();
+    }
+
+    function selectMonthPreset(preset, event) {
+      if (event) {
+        event.stopPropagation();
+        event.preventDefault();
+      }
+
+      if (preset === 'ALL') {
+        AppState.tempSelectedMonths = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+      } else if (preset === 'H1') {
+        AppState.tempSelectedMonths = [1, 2, 3, 4, 5, 6];
+      } else if (preset === 'LATEST') {
+        AppState.tempSelectedMonths = [7];
+      } else if (preset === 'Q1') {
+        AppState.tempSelectedMonths = [1, 2, 3];
+      } else if (preset === 'Q2') {
+        AppState.tempSelectedMonths = [4, 5, 6];
+      } else if (preset === 'CLEAR') {
+        AppState.tempSelectedMonths = [];
+      }
+
+      renderMonthsCheckboxGrid();
+    }
+
+    function applyMonthSelection(event) {
+      if (event) {
+        event.stopPropagation();
+        event.preventDefault();
+      }
+
+      const selected = (AppState.tempSelectedMonths || []).slice().sort((a, b) => a - b);
+      if (selected.length === 0) {
+        showToast('⚠️ Vui lòng chọn ít nhất 1 tháng trước khi xác nhận!', 'warning');
+        return;
+      }
+
+      AppState.selectedMonths = selected;
+
+      // Sync AppState.currentMonth for single-month views/simulator
+      if (selected.length === 12) {
+        AppState.currentMonth = 'ALL_MONTHS';
+      } else if (selected.length === 1) {
+        AppState.currentMonth = `T0${selected[0]}.2026`;
+      } else {
+        AppState.currentMonth = `T0${selected[selected.length - 1]}.2026`;
+      }
+
       updateMonthButtonLabel();
+      toggleMonthPopover(false);
+      refreshDashboard();
+
+      const label = formatSelectedMonthsLabel(selected);
+      showToast(`Đã áp dụng kỳ báo cáo: ${label}`, 'success');
+    }
+
+    function formatSelectedMonthsLabel(months) {
+      if (months.length === 12) return 'Tất cả 12 tháng';
+      if (months.length === 1) return `Tháng ${months[0] < 10 ? '0' + months[0] : months[0]}/2026`;
+      if (months.length <= 4) {
+        return 'Tháng ' + months.map(m => (m < 10 ? '0' + m : m)).join(', ') + '/2026';
+      }
+      return `${months.length} tháng (T${months[0]}..T${months[months.length - 1]})`;
     }
 
     function updateMonthButtonLabel() {
@@ -29792,65 +29916,12 @@ Chi tiết kỹ thuật: ${resData.description}`);
       }
     }
 
-    function toggleMonthCheckbox(m) {
-      if (!AppState.selectedMonths) AppState.selectedMonths = [];
-      const idx = AppState.selectedMonths.indexOf(m);
-      if (idx !== -1) {
-        if (AppState.selectedMonths.length > 1) {
-          AppState.selectedMonths.splice(idx, 1);
-        } else {
-          showToast('⚠️ Vui lòng giữ ít nhất 1 tháng được chọn!', 'warning');
-          return;
-        }
-      } else {
-        AppState.selectedMonths.push(m);
-      }
-
-      // Sync AppState.currentMonth for single-month views/simulator
-      const sorted = AppState.selectedMonths.slice().sort((a, b) => a - b);
-      if (sorted.length === 12) {
-        AppState.currentMonth = 'ALL_MONTHS';
-      } else if (sorted.length === 1) {
-        AppState.currentMonth = `T0${sorted[0]}.2026`;
-      } else {
-        AppState.currentMonth = `T0${sorted[sorted.length - 1]}.2026`;
-      }
-
-      renderMonthsCheckboxGrid();
-      refreshDashboard();
-    }
-
-    function selectMonthPreset(preset) {
-      if (preset === 'ALL') {
-        AppState.selectedMonths = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-        AppState.currentMonth = 'ALL_MONTHS';
-      } else if (preset === 'H1') {
-        AppState.selectedMonths = [1, 2, 3, 4, 5, 6];
-        AppState.currentMonth = 'T06.2026';
-      } else if (preset === 'LATEST') {
-        AppState.selectedMonths = [7];
-        AppState.currentMonth = 'T07.2026';
-      } else if (preset === 'Q1') {
-        AppState.selectedMonths = [1, 2, 3];
-        AppState.currentMonth = 'T03.2026';
-      } else if (preset === 'Q2') {
-        AppState.selectedMonths = [4, 5, 6];
-        AppState.currentMonth = 'T06.2026';
-      } else if (preset === 'CLEAR') {
-        AppState.selectedMonths = [7];
-        AppState.currentMonth = 'T07.2026';
-      }
-
-      renderMonthsCheckboxGrid();
-      refreshDashboard();
-      showToast(`Đã chọn: ${preset === 'ALL' ? 'Tất cả 12 tháng' : (preset === 'H1' ? '6 tháng đầu năm (T1-T6)' : (preset === 'LATEST' ? 'Tháng 7 mới nhất' : (preset === 'Q1' ? 'Quý 1 (T1-T3)' : 'Quý 2 (T4-T6)')))}`, 'info');
-    }
-
     // Month Selector Initialization
     function populateMonthSelector() {
       if (!AppState.selectedMonths || !AppState.selectedMonths.length) {
         AppState.selectedMonths = [7];
       }
+      AppState.tempSelectedMonths = AppState.selectedMonths.slice();
       renderMonthsCheckboxGrid();
       updateMonthButtonLabel();
     }
@@ -31723,8 +31794,10 @@ function updateSyncUI() {
       document.addEventListener('click', (e) => {
         const container = document.getElementById('month-multiselect-container');
         const popover = document.getElementById('month-multiselect-popover');
-        if (container && popover && !container.contains(e.target) && !popover.classList.contains('hidden')) {
-          toggleMonthPopover(false);
+        if (container && popover && !popover.classList.contains('hidden')) {
+          if (!container.contains(e.target) && !e.target.closest('#month-multiselect-container')) {
+            toggleMonthPopover(false);
+          }
         }
 
         // Close Scope Combobox when clicking outside
