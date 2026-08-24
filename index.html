@@ -28074,24 +28074,8 @@ const GoogleSheetsSyncService = {
 
     const MASTER_ACCOUNTS = {
       'votuananh':      { pwd: 'Hrteam123123@', name: 'Võ Tuấn Anh',      title: 'Quản Trị Viên Nhân Sự', role: 'admin' },
-      'admin':          { pwd: 'Hrteam123123@', name: 'Võ Tuấn Anh',      title: 'Quản Trị Viên Nhân Sự', role: 'admin' },
-      'anhvt':          { pwd: 'Hrteam123123@', name: 'Võ Tuấn Anh',      title: 'Quản Trị Viên Nhân Sự', role: 'admin' },
-      'hr':             { pwd: 'Hrteam123123@', name: 'Võ Tuấn Anh',      title: 'Quản Trị Viên Nhân Sự', role: 'admin' },
       'nguyenvantan':   { pwd: 'gdv@hcm2026',   name: 'Nguyễn Văn Tân',   title: 'Giám Đốc Vùng HCM',     role: 'admin' },
-      '3031315':        { pwd: 'gdv@hcm2026',   name: 'Nguyễn Văn Tân',   title: 'Giám Đốc Vùng HCM',     role: 'admin' },
-      'tannv1':         { pwd: 'gdv@hcm2026',   name: 'Nguyễn Văn Tân',   title: 'Giám Đốc Vùng HCM',     role: 'admin' },
-      'tannv1@ghn.vn':  { pwd: 'gdv@hcm2026',   name: 'Nguyễn Văn Tân',   title: 'Giám Đốc Vùng HCM',     role: 'admin' },
-      'giamdocvung':    { pwd: 'gdv@hcm2026',   name: 'Nguyễn Văn Tân',   title: 'Giám Đốc Vùng HCM',     role: 'admin' },
-      'gdv.hcm':        { pwd: 'gdv@hcm2026',   name: 'Nguyễn Văn Tân',   title: 'Giám Đốc Vùng HCM',     role: 'admin' },
-      'gdv':            { pwd: 'gdv@hcm2026',   name: 'Nguyễn Văn Tân',   title: 'Giám Đốc Vùng HCM',     role: 'admin' },
-      'nguyenquanghuy': { pwd: 'TAdeptrai@2026', name: 'Nguyễn Quang Huy', title: 'HRBP Leader HCM',      role: 'admin' },
-      '3054562':        { pwd: 'TAdeptrai@2026', name: 'Nguyễn Quang Huy', title: 'HRBP Leader HCM',      role: 'admin' },
-      'huynq1':         { pwd: 'TAdeptrai@2026', name: 'Nguyễn Quang Huy', title: 'HRBP Leader HCM',      role: 'admin' },
-      'huynq1@ghn.vn':  { pwd: 'TAdeptrai@2026', name: 'Nguyễn Quang Huy', title: 'HRBP Leader HCM',      role: 'admin' },
-      'hrbp.leader':    { pwd: 'TAdeptrai@2026', name: 'Nguyễn Quang Huy', title: 'HRBP Leader HCM',      role: 'admin' },
-      'hrbp.hcm':       { pwd: 'TAdeptrai@2026', name: 'Nguyễn Quang Huy', title: 'HRBP Leader HCM',      role: 'admin' },
-      'hrbpleader':     { pwd: 'TAdeptrai@2026', name: 'Nguyễn Quang Huy', title: 'HRBP Leader HCM',      role: 'admin' },
-      'hrbp':           { pwd: 'TAdeptrai@2026', name: 'Nguyễn Quang Huy', title: 'HRBP Leader HCM',      role: 'admin' }
+      'nguyenquanghuy': { pwd: 'TAdeptrai@2026', name: 'Nguyễn Quang Huy', title: 'HRBP Leader HCM',      role: 'admin' }
     };
 
     // Global Application State
@@ -29548,26 +29532,15 @@ const GoogleSheetsSyncService = {
         }
       }
 
-      // Check if this AM has Master View privileges (Giám Đốc Vùng HCM, HRBP Leader, Master Admin)
-      const isMasterAM = (
-        matchedAM.id === '3031315' || normalizeVN(matchedAM.name) === normalizeVN('Nguyễn Văn Tân') ||
-        matchedAM.id === '3054562' || normalizeVN(matchedAM.name) === normalizeVN('Nguyễn Quang Huy') ||
-        matchedAM.id === '210781_admin' || normalizeVN(matchedAM.name) === normalizeVN('Võ Tuấn Anh')
-      );
-
-      const userRole = isMasterAM ? 'admin' : 'am';
-      const defaultTitle = (normalizeVN(matchedAM.name) === normalizeVN('Nguyễn Văn Tân')) 
-        ? 'Giám Đốc Vùng HCM' 
-        : ((normalizeVN(matchedAM.name) === normalizeVN('Nguyễn Quang Huy')) ? 'HRBP Leader HCM' : 'AM Vùng HCM');
-
+      // Always set individual AM role for Form 1 (AM Personal View)
       const userObj = {
         authenticated: true,
         name: matchedAM.name,
         ma_am: matchedAM.id,
         email: matchedAM.email,
-        title: defaultTitle,
-        role: userRole,
-        scopedAM: isMasterAM ? null : matchedAM.name,
+        title: 'AM Vùng HCM',
+        role: 'am',
+        scopedAM: matchedAM.name,
         method: '3factor',
         loginTime: new Date().toISOString()
       };
@@ -29582,10 +29555,10 @@ const GoogleSheetsSyncService = {
       } catch(err) {}
 
       AppState.currentUser = userObj;
-      AppState.scopedAM = isMasterAM ? null : matchedAM.name;
+      AppState.scopedAM = matchedAM.name;
 
       try {
-        logAuditEvent(userObj.name, `Đăng nhập cá nhân thành công qua xác thực 3 yếu tố (Mã: ${matchedAM.id})`, 'success');
+        logAuditEvent(userObj.name, `Đăng nhập cá nhân AM thành công qua xác thực 3 yếu tố (Mã: ${matchedAM.id})`, 'success');
         sendAdminLoginNotification(matchedAM.email, `${matchedAM.name} (Mã: ${matchedAM.id})`);
       } catch(err) {}
 
@@ -29593,15 +29566,12 @@ const GoogleSheetsSyncService = {
         triggerConfetti();
       } catch(err) {}
 
-      if (isMasterAM) {
-        showToast(`Xin chào ${matchedAM.name} (${defaultTitle})! Đã mở quyền Quản trị Master View toàn vùng.`, 'success');
-      } else {
-        showToast(`Xin chào ${matchedAM.name}! Đã mở bảng số liệu cá nhân của bạn.`, 'success');
-      }
+      showToast(`Xin chào AM ${matchedAM.name}! Đã mở bảng số liệu cá nhân của bạn.`, 'success');
       unlockDashboard(userObj);
     }
 
     // 2. Master Account Login Submission (Flexible & Secure Multi-Password Support)
+    // 2. Master Account Login Submission (Strict 3 Admin Accounts Only)
     function handleMasterLogin(e) {
       e.preventDefault();
       const rawUser = document.getElementById('login-username').value.trim().toLowerCase();
@@ -29612,15 +29582,8 @@ const GoogleSheetsSyncService = {
       const customPwd = localStorage.getItem('hcm_bi_custom_master_pwd');
       
       let isValid = false;
-      let adminName = 'Võ Tuấn Anh';
-      let adminTitle = 'Quản Trị Viên';
-
-      const validUsernames = [
-        'votuananh', 'admin', 'anhvt', 'hr',
-        'nguyenvantan', '3031315', 'tannv1', 'tannv1@ghn.vn', 'giamdocvung', 'gdv.hcm', 'gdv',
-        'nguyenquanghuy', '3054562', 'huynq1', 'huynq1@ghn.vn', 'hrbp.leader', 'hrbp.hcm', 'hrbpleader', 'hrbp'
-      ];
-      const defaultPasswords = ['Hrteam123123@', 'hrteam123123@', 'am2026', 'hcm@2026', 'gdv@hcm2026', 'TAdeptrai@2026', 'hrbp@hcm2026', '123456', 'votuananh'];
+      let adminName = '';
+      let adminTitle = '';
 
       const acc = MASTER_ACCOUNTS[rawUser];
       if (acc) {
@@ -29628,33 +29591,12 @@ const GoogleSheetsSyncService = {
           isValid = true;
         } else if (acc.pwd === password) {
           isValid = true;
-        } else if (defaultPasswords.includes(password)) {
+        } else if (['Hrteam123123@', 'gdv@hcm2026', 'TAdeptrai@2026'].includes(password)) {
           isValid = true;
         }
         if (isValid) {
           adminName = acc.name;
-          adminTitle = acc.title || 'Quản Trị Viên';
-        }
-      } else if (validUsernames.includes(rawUser)) {
-        if (customPwd && password === customPwd) {
-          isValid = true;
-        } else if (defaultPasswords.includes(password)) {
-          isValid = true;
-        }
-        if (isValid) {
-          if (rawUser.includes('gdv') || rawUser.includes('giamdoc')) {
-            adminName = 'Giám Đốc Vùng HCM';
-            adminTitle = 'Ban Giám Đốc Vùng HCM';
-          } else if (rawUser.includes('hrbp')) {
-            adminName = 'HRBP Leader HCM';
-            adminTitle = 'Trưởng Bộ Phận HRBP';
-          } else if (rawUser === 'votuananh' || rawUser === 'anhvt') {
-            adminName = 'Võ Tuấn Anh';
-            adminTitle = 'Quản Trị Viên Nhân Sự';
-          } else {
-            adminName = 'Master Administrator';
-            adminTitle = 'Ban Quản Trị Hệ Thống';
-          }
+          adminTitle = acc.title;
         }
       }
 
