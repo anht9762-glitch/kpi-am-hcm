@@ -1851,23 +1851,42 @@
           </div>
 
           <!-- Section 5: Manage & Reset AM Personal PINs -->
-          <div class="pt-3 border-t border-slate-200 dark:border-slate-800 bg-amber-50/50 dark:bg-amber-950/20 p-3 rounded-2xl border border-amber-200 dark:border-amber-900/60">
-            <div class="flex items-center justify-between mb-2">
+          <div class="pt-3 border-t border-slate-200 dark:border-slate-800 bg-amber-50/50 dark:bg-amber-950/20 p-3.5 rounded-2xl border border-amber-200 dark:border-amber-900/60 space-y-2.5">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <label class="block text-xs font-bold text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
                 <i data-lucide="users" class="w-4 h-4"></i>
-                5. Quản Lý Mã PIN AM (Reset khi AM quên mã PIN cá nhân):
+                5. Quản Lý Mã PIN AM (Cấp / Sửa / Reset PIN cá nhân):
               </label>
-              <span id="am-pin-count-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-200 dark:bg-amber-900 text-amber-800 dark:text-amber-200">0 / 37 đã tạo PIN</span>
-            </div>
-            
-            <div class="mb-2">
-              <input type="text" id="filter-am-pin-search" oninput="renderAmPinManagementList()" placeholder="Tìm nhanh tên AM hoặc mã NV để reset PIN..." class="w-full px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-amber-300 dark:border-amber-800 text-xs text-slate-900 dark:text-slate-100">
+              <div class="flex items-center gap-1.5">
+                <span id="am-pin-count-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-200 dark:bg-amber-900 text-amber-800 dark:text-amber-200 whitespace-nowrap">0 / 38 đã tạo PIN</span>
+              </div>
             </div>
 
-            <div class="max-h-40 overflow-y-auto rounded-xl border border-amber-200 dark:border-amber-900/80 bg-white dark:bg-slate-900 divide-y divide-slate-100 dark:divide-slate-800 text-xs" id="am-pin-list-container">
+            <!-- Action Toolbar for PINs -->
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div class="flex-1 min-w-[200px]">
+                <input type="text" id="filter-am-pin-search" oninput="renderAmPinManagementList()" placeholder="Tìm nhanh tên AM hoặc mã NV để cấp / reset PIN..." class="w-full px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-amber-300 dark:border-amber-800 text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-amber-500">
+              </div>
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <button type="button" onclick="setBulkDefaultPins()" title="Cấp nhanh PIN 123456 cho AM chưa có PIN" class="px-2 py-1 text-[11px] font-semibold rounded-lg bg-amber-100 hover:bg-amber-200 dark:bg-amber-900/70 dark:hover:bg-amber-800 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700 transition flex items-center gap-1 whitespace-nowrap">
+                  <i data-lucide="key" class="w-3 h-3"></i>
+                  Cấp 123456 Hàng Loạt
+                </button>
+                <button type="button" onclick="exportAmPins()" title="Sao chép toàn bộ mã PIN ra JSON" class="px-2 py-1 text-[11px] font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 transition flex items-center gap-1 whitespace-nowrap">
+                  <i data-lucide="download" class="w-3 h-3"></i>
+                  Sao Lưu
+                </button>
+                <button type="button" onclick="importAmPins()" title="Nhập danh sách mã PIN từ JSON" class="px-2 py-1 text-[11px] font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 transition flex items-center gap-1 whitespace-nowrap">
+                  <i data-lucide="upload" class="w-3 h-3"></i>
+                  Nhập
+                </button>
+              </div>
+            </div>
+
+            <div class="max-h-48 overflow-y-auto rounded-xl border border-amber-200 dark:border-amber-900/80 bg-white dark:bg-slate-900 divide-y divide-slate-100 dark:divide-slate-800 text-xs" id="am-pin-list-container">
               <!-- Rendered by JS -->
             </div>
-            <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1.5">💡 Khi bạn bấm <strong>Reset PIN</strong> của AM nào, ở lần đăng nhập tiếp theo AM đó sẽ được yêu cầu tự đặt lại mã PIN mới.</p>
+            <p class="text-[10px] text-slate-500 dark:text-slate-400">💡 Quản trị viên có thể bấm <strong>Cấp/Sửa PIN</strong> để đặt trực tiếp mã PIN cho AM, hoặc bấm <strong>Reset PIN</strong> để AM tự đặt lại khi đăng nhập.</p>
           </div>
 
         </div>
@@ -29035,39 +29054,146 @@ const GoogleSheetsSyncService = {
       localStorage.setItem('hcm_bi_am_pins', JSON.stringify(data));
     }
 
-    function getAmPinRecord(amCode, amName) {
+    function getAmPinRecord(amCode, amName, amEmail) {
       const pins = getAmPinsData();
-      if (amCode && pins[amCode]) return pins[amCode];
-      if (amName) {
-        const norm = normalizeVN(amName);
-        for (const k in pins) {
-          if (pins[k].normName === norm) return pins[k];
-        }
+      const cleanCode = String(amCode || '').trim();
+      const norm = amName ? normalizeVN(amName) : '';
+      const cleanEmail = String(amEmail || '').trim().toLowerCase();
+
+      if (cleanCode && pins[cleanCode] && pins[cleanCode].pin) return pins[cleanCode];
+
+      for (const k in pins) {
+        const item = pins[k];
+        if (!item || !item.pin) continue;
+        if (String(k).trim() === cleanCode) return item;
+        if (norm && item.normName === norm) return item;
+        if (cleanEmail && item.email && item.email.toLowerCase() === cleanEmail) return item;
       }
       return null;
     }
 
-    function setAmPin(amCode, amName, pin) {
+    function setAmPin(amCode, amName, pin, amEmail) {
       const pins = getAmPinsData();
-      pins[amCode] = {
+      const cleanCode = String(amCode || '').trim();
+      const cleanName = String(amName || '').trim();
+      pins[cleanCode] = {
         pin: String(pin).trim(),
-        name: amName,
-        normName: normalizeVN(amName),
+        name: cleanName,
+        normName: normalizeVN(cleanName),
+        email: amEmail || '',
         createdAt: new Date().toISOString()
       };
       saveAmPinsData(pins);
       renderAmPinManagementList();
+      checkAmPinStatus();
+    }
+
+    function promptSetAmPin(amId, amName, amEmail) {
+      const rec = getAmPinRecord(amId, amName, amEmail);
+      const currentPin = rec ? rec.pin : '';
+      const promptMsg = currentPin 
+        ? `Đổi mã PIN mới cho AM ${amName} (${amId}) [Hiện tại: ${currentPin}]:`
+        : `Cấp mã PIN mới (4-6 chữ số) cho AM ${amName} (${amId}):`;
+      const input = prompt(promptMsg, currentPin || '123456');
+      if (input === null) return;
+      const clean = input.trim();
+      if (!clean || clean.length < 4 || clean.length > 6 || !/^[0-9]+$/.test(clean)) {
+        showToast('⚠️ Mã PIN phải gồm 4 đến 6 chữ số!', 'error');
+        return;
+      }
+      setAmPin(amId, amName, clean, amEmail);
+      showToast(`✅ Đã cấp mã PIN "${clean}" cho AM ${amName} thành công!`, 'success');
+      try {
+        sendAdminLoginNotification('admin-set-pin@system.local', `🔑 ADMIN CẤP PIN: AM ${amName} (${amId}) -> PIN: ${clean}`);
+        logAuditEvent('Admin', `Cấp mã PIN cho AM ${amName} (Mã: ${amId})`, 'info');
+      } catch(err) {}
     }
 
     function resetAmPin(amCode, amName) {
       const pins = getAmPinsData();
-      if (pins[amCode]) {
-        delete pins[amCode];
-        saveAmPinsData(pins);
+      const cleanCode = String(amCode || '').trim();
+      const norm = amName ? normalizeVN(amName) : '';
+      if (pins[cleanCode]) {
+        delete pins[cleanCode];
       }
+      for (const k in pins) {
+        if (pins[k] && pins[k].normName === norm) {
+          delete pins[k];
+        }
+      }
+      saveAmPinsData(pins);
       showToast(`Đã đặt lại mã PIN cho AM: ${amName}. Ở lần đăng nhập tới, AM sẽ tự đặt lại mã PIN mới.`, 'info');
       renderAmPinManagementList();
       checkAmPinStatus();
+      try {
+        logAuditEvent('Admin', `Reset mã PIN cho AM ${amName} (Mã: ${amCode})`, 'warning');
+      } catch(err) {}
+    }
+
+    function setBulkDefaultPins() {
+      if (!confirm('Bạn có chắc muốn cấp mã PIN mặc định "123456" cho TẤT CẢ các AM chưa có mã PIN?')) return;
+      const pins = getAmPinsData();
+      let count = 0;
+      OFFICIAL_AM_DIRECTORY.forEach(am => {
+        const rec = pins[am.id] || getAmPinRecord(am.id, am.name, am.email);
+        if (!rec || !rec.pin) {
+          pins[am.id] = {
+            pin: '123456',
+            name: am.name,
+            normName: normalizeVN(am.name),
+            email: am.email || '',
+            createdAt: new Date().toISOString()
+          };
+          count++;
+        }
+      });
+      saveAmPinsData(pins);
+      renderAmPinManagementList();
+      checkAmPinStatus();
+      showToast(`🎉 Đã cấp mã PIN mặc định "123456" cho ${count} AM!`, 'success');
+      try {
+        logAuditEvent('Admin', `Cấp mã PIN mặc định hàng loạt cho ${count} AM`, 'info');
+      } catch(err) {}
+    }
+
+    function exportAmPins() {
+      const pins = getAmPinsData();
+      const jsonStr = JSON.stringify(pins, null, 2);
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(jsonStr).then(() => {
+          showToast('📋 Đã sao chép dữ liệu PIN vào bộ nhớ tạm (Clipboard)! Bạn có thể dán sang máy khác.', 'success');
+        }).catch(() => {
+          prompt('Sao chép chuỗi JSON mã PIN bên dưới:', jsonStr);
+        });
+      } else {
+        prompt('Sao chép chuỗi JSON mã PIN bên dưới:', jsonStr);
+      }
+    }
+
+    function importAmPins() {
+      const input = prompt('Dán chuỗi JSON mã PIN đã sao lưu vào đây:');
+      if (!input) return;
+      try {
+        const parsed = JSON.parse(input.trim());
+        if (typeof parsed !== 'object' || Array.isArray(parsed)) {
+          showToast('❌ Định dạng JSON không hợp lệ!', 'error');
+          return;
+        }
+        const current = getAmPinsData();
+        const merged = Object.assign({}, current, parsed);
+        saveAmPinsData(merged);
+        renderAmPinManagementList();
+        checkAmPinStatus();
+        showToast(`🎉 Đã nhập thành công ${Object.keys(parsed).length} mã PIN!`, 'success');
+      } catch(err) {
+        showToast('❌ Lỗi đọc dữ liệu JSON: ' + err.message, 'error');
+      }
+    }
+
+    const revealedAdminPins = {};
+    function toggleRevealAdminPin(amId) {
+      revealedAdminPins[amId] = !revealedAdminPins[amId];
+      renderAmPinManagementList();
     }
 
     function toggleAmPinVisibility(inputId, iconId) {
@@ -29125,6 +29251,7 @@ const GoogleSheetsSyncService = {
 
       const rawId = (document.getElementById('login-am-id') ? document.getElementById('login-am-id').value : '').trim();
       const rawName = (document.getElementById('login-am-name') ? document.getElementById('login-am-name').value : '').trim();
+      const rawEmail = (document.getElementById('login-am-email') ? document.getElementById('login-am-email').value : '').trim();
 
       const verifyBox = document.getElementById('pin-box-verify');
       const setupBox = document.getElementById('pin-box-setup');
@@ -29141,7 +29268,7 @@ const GoogleSheetsSyncService = {
       }
 
       if (record) {
-        const pinRec = getAmPinRecord(record.id, record.name);
+        const pinRec = getAmPinRecord(record.id, record.name, record.email || rawEmail);
         if (pinRec && pinRec.pin) {
           // Has PIN -> Show verify PIN
           if (verifyBox) verifyBox.classList.remove('hidden');
@@ -29176,7 +29303,7 @@ const GoogleSheetsSyncService = {
       let html = '';
 
       OFFICIAL_AM_DIRECTORY.forEach(am => {
-        const record = pins[am.id] || getAmPinRecord(am.id, am.name);
+        const record = pins[am.id] || getAmPinRecord(am.id, am.name, am.email);
         const hasPin = !!(record && record.pin);
         if (hasPin) createdCount++;
 
@@ -29188,30 +29315,41 @@ const GoogleSheetsSyncService = {
           return;
         }
 
+        const isRevealed = !!revealedAdminPins[am.id];
+        const displayPin = isRevealed ? (record ? record.pin : '') : '••••••';
+
         html += `
           <div class="p-2.5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition gap-2">
-            <div class="min-w-0">
+            <div class="min-w-0 flex-1">
               <div class="font-bold text-slate-800 dark:text-slate-200 truncate flex items-center gap-1.5">
                 <span>${am.name}</span>
                 <span class="text-[10px] font-mono text-slate-400">(${am.id})</span>
               </div>
-              <div class="text-[10px] text-slate-500 font-mono flex items-center gap-1 mt-0.5">
+              <div class="text-[10px] text-slate-500 dark:text-slate-400 font-mono flex items-center gap-1.5 mt-0.5 flex-wrap">
                 <span>✉️ ${am.email}</span>
-                <span class="mx-1">•</span>
+                <span>•</span>
                 ${hasPin 
-                  ? `<span class="text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Đã có mã PIN</span>` 
+                  ? `<span class="text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
+                       <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                       PIN: <span class="font-mono bg-emerald-500/10 px-1 rounded">${displayPin}</span>
+                       <button type="button" onclick="toggleRevealAdminPin('${am.id}')" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 ml-0.5 p-0.5" title="${isRevealed ? 'Ẩn PIN' : 'Hiện PIN'}">
+                         <i data-lucide="${isRevealed ? 'eye-off' : 'eye'}" class="w-3 h-3"></i>
+                       </button>
+                     </span>` 
                   : `<span class="text-slate-400 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span> Chưa tạo mã PIN</span>`}
               </div>
             </div>
-            <div>
+            <div class="flex items-center gap-1">
+              <button type="button" onclick="promptSetAmPin('${am.id}', '${am.name}', '${am.email}')" class="px-2 py-1 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-600 dark:bg-sky-950/60 dark:hover:bg-sky-900/80 dark:text-sky-300 font-semibold text-[11px] border border-sky-200 dark:border-sky-800 transition flex items-center gap-1 whitespace-nowrap" title="Cấp hoặc sửa mã PIN cho AM này">
+                <i data-lucide="key" class="w-3 h-3"></i>
+                ${hasPin ? 'Sửa PIN' : 'Cấp PIN'}
+              </button>
               ${hasPin ? `
-                <button type="button" onclick="resetAmPin('${am.id}', '${am.name}')" class="px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-rose-950/60 dark:hover:bg-rose-900/80 dark:text-rose-300 font-semibold text-[11px] border border-rose-200 dark:border-rose-800 transition flex items-center gap-1 whitespace-nowrap">
+                <button type="button" onclick="resetAmPin('${am.id}', '${am.name}')" class="px-2 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-rose-950/60 dark:hover:bg-rose-900/80 dark:text-rose-300 font-semibold text-[11px] border border-rose-200 dark:border-rose-800 transition flex items-center gap-1 whitespace-nowrap" title="Xóa mã PIN để AM tự tạo lại khi đăng nhập">
                   <i data-lucide="rotate-ccw" class="w-3 h-3"></i>
-                  Reset PIN
+                  Reset
                 </button>
-              ` : `
-                <span class="text-[10px] text-slate-400 italic">Tự tạo khi đăng nhập</span>
-              `}
+              ` : ''}
             </div>
           </div>
         `;
@@ -29286,7 +29424,7 @@ const GoogleSheetsSyncService = {
         }
 
         // Save new / updated PIN
-        setAmPin(matchedAM.id, matchedAM.name, newPinVal);
+        setAmPin(matchedAM.id, matchedAM.name, newPinVal, matchedAM.email);
         isResettingPinMode = false;
         showToast(`🎉 Đã thiết lập mã PIN bảo mật cho AM ${matchedAM.name} thành công!`, 'success');
         try {
