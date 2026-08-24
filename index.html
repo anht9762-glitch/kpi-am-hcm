@@ -715,14 +715,26 @@
                       type="text" 
                       autocomplete="off" 
                       spellcheck="false"
-                      placeholder="Nhập tên hoặc mã AM..."
+                      placeholder="Gõ tên hoặc mã AM..."
                       value="🌐 Toàn Vùng HCM (Tất cả AM)"
-                      class="w-full bg-brand-50 dark:bg-brand-950/80 text-brand-800 dark:text-brand-200 text-xs sm:text-sm font-bold rounded-lg pl-3 pr-8 py-2 border border-brand-300 dark:border-brand-800 focus:ring-2 focus:ring-brand-500 focus:outline-none transition shadow-sm cursor-text placeholder:text-slate-400 placeholder:font-normal"
-                      onfocus="openScopeDropdown()"
-                      onclick="openScopeDropdown()"
+                      class="w-full bg-brand-50 dark:bg-brand-950/80 text-brand-800 dark:text-brand-200 text-xs sm:text-sm font-bold rounded-lg pl-3 pr-14 py-2 border border-brand-300 dark:border-brand-800 focus:ring-2 focus:ring-brand-500 focus:outline-none transition shadow-sm cursor-text placeholder:text-slate-400 placeholder:font-normal"
+                      onfocus="openScopeDropdown(true)"
+                      onclick="openScopeDropdown(true)"
                       oninput="onScopeSearchInput(this.value)"
                       onkeydown="onScopeKeyDown(event)"
                     />
+                    
+                    <!-- Clear search button -->
+                    <button 
+                      id="btn-clear-scope-input"
+                      type="button" 
+                      onclick="clearScopeSearch(event)" 
+                      class="hidden absolute right-7 p-1 rounded hover:bg-brand-200/60 dark:hover:bg-brand-900 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition text-xs font-bold"
+                      title="Xóa tìm kiếm"
+                    >
+                      ✕
+                    </button>
+
                     <!-- Dropdown Toggle Chevron Button -->
                     <button 
                       id="btn-toggle-scope-dropdown"
@@ -739,7 +751,7 @@
                   <!-- Dropdown Suggestions List Panel -->
                   <div 
                     id="scope-dropdown-list" 
-                    class="hidden absolute left-0 right-0 top-full mt-1.5 z-50 max-h-72 overflow-y-auto bg-white dark:bg-slate-900 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-800 p-1.5 animate-in fade-in slide-in-from-top-1 duration-150 custom-scrollbar"
+                    class="hidden absolute left-0 right-0 top-full mt-1.5 z-50 max-h-80 overflow-y-auto bg-white dark:bg-slate-900 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-800 p-1.5 animate-in fade-in slide-in-from-top-1 duration-150 custom-scrollbar"
                   >
                     <!-- Items rendered dynamically by JS -->
                   </div>
@@ -27919,13 +27931,23 @@ const GoogleSheetsSyncService = {
     const MASTER_ACCOUNTS = {
       'votuananh':      { pwd: 'Hrteam123123@', name: 'Võ Tuấn Anh',      title: 'Quản Trị Viên Nhân Sự', role: 'admin' },
       'admin':          { pwd: 'Hrteam123123@', name: 'Võ Tuấn Anh',      title: 'Quản Trị Viên Nhân Sự', role: 'admin' },
+      'anhvt':          { pwd: 'Hrteam123123@', name: 'Võ Tuấn Anh',      title: 'Quản Trị Viên Nhân Sự', role: 'admin' },
+      'hr':             { pwd: 'Hrteam123123@', name: 'Võ Tuấn Anh',      title: 'Quản Trị Viên Nhân Sự', role: 'admin' },
       'nguyenvantan':   { pwd: 'gdv@hcm2026',   name: 'Nguyễn Văn Tân',   title: 'Giám Đốc Vùng HCM',     role: 'admin' },
+      '3031315':        { pwd: 'gdv@hcm2026',   name: 'Nguyễn Văn Tân',   title: 'Giám Đốc Vùng HCM',     role: 'admin' },
+      'tannv1':         { pwd: 'gdv@hcm2026',   name: 'Nguyễn Văn Tân',   title: 'Giám Đốc Vùng HCM',     role: 'admin' },
+      'tannv1@ghn.vn':  { pwd: 'gdv@hcm2026',   name: 'Nguyễn Văn Tân',   title: 'Giám Đốc Vùng HCM',     role: 'admin' },
       'giamdocvung':    { pwd: 'gdv@hcm2026',   name: 'Nguyễn Văn Tân',   title: 'Giám Đốc Vùng HCM',     role: 'admin' },
       'gdv.hcm':        { pwd: 'gdv@hcm2026',   name: 'Nguyễn Văn Tân',   title: 'Giám Đốc Vùng HCM',     role: 'admin' },
+      'gdv':            { pwd: 'gdv@hcm2026',   name: 'Nguyễn Văn Tân',   title: 'Giám Đốc Vùng HCM',     role: 'admin' },
       'nguyenquanghuy': { pwd: 'TAdeptrai@2026', name: 'Nguyễn Quang Huy', title: 'HRBP Leader HCM',      role: 'admin' },
+      '3054562':        { pwd: 'TAdeptrai@2026', name: 'Nguyễn Quang Huy', title: 'HRBP Leader HCM',      role: 'admin' },
+      'huynq1':         { pwd: 'TAdeptrai@2026', name: 'Nguyễn Quang Huy', title: 'HRBP Leader HCM',      role: 'admin' },
+      'huynq1@ghn.vn':  { pwd: 'TAdeptrai@2026', name: 'Nguyễn Quang Huy', title: 'HRBP Leader HCM',      role: 'admin' },
       'hrbp.leader':    { pwd: 'TAdeptrai@2026', name: 'Nguyễn Quang Huy', title: 'HRBP Leader HCM',      role: 'admin' },
       'hrbp.hcm':       { pwd: 'TAdeptrai@2026', name: 'Nguyễn Quang Huy', title: 'HRBP Leader HCM',      role: 'admin' },
-      'hrbpleader':     { pwd: 'TAdeptrai@2026', name: 'Nguyễn Quang Huy', title: 'HRBP Leader HCM',      role: 'admin' }
+      'hrbpleader':     { pwd: 'TAdeptrai@2026', name: 'Nguyễn Quang Huy', title: 'HRBP Leader HCM',      role: 'admin' },
+      'hrbp':           { pwd: 'TAdeptrai@2026', name: 'Nguyễn Quang Huy', title: 'HRBP Leader HCM',      role: 'admin' }
     };
 
     // Global Application State
@@ -28173,39 +28195,75 @@ const GoogleSheetsSyncService = {
         this.filteredItems = items;
       },
 
+      highlightMatch(text, query) {
+        if (!query || !text) return text;
+        const normText = normalizeVN(text);
+        const normQ = normalizeVN(query.trim());
+        if (!normQ) return text;
+
+        const idx = normText.indexOf(normQ);
+        if (idx === -1) return text;
+
+        const originalSub = text.substring(idx, idx + query.length);
+        const before = text.substring(0, idx);
+        const after = text.substring(idx + query.length);
+        return `${before}<mark class="bg-amber-200 dark:bg-amber-500/40 text-amber-900 dark:text-amber-100 font-bold px-0.5 rounded">${originalSub}</mark>${after}`;
+      },
+
       renderList(query = '') {
         const listEl = document.getElementById('scope-dropdown-list');
         if (!listEl) return;
 
-        const cleanQ = normalizeVN(query.trim());
-        if (!cleanQ) {
+        let cleanQ = query.trim();
+        if (cleanQ.startsWith('🌐') || cleanQ.startsWith('👤')) {
+          cleanQ = '';
+        }
+        const normQ = normalizeVN(cleanQ);
+
+        if (!normQ) {
           this.filteredItems = this.allItems;
         } else {
           this.filteredItems = this.allItems.filter(item => {
             if (item.isAll) {
-              return cleanQ.includes('toan') || cleanQ.includes('tat ca') || cleanQ.includes('all') || cleanQ.includes('vung');
+              return normQ.includes('toan') || normQ.includes('tat ca') || normQ.includes('all') || normQ.includes('vung');
             }
-            const matchName = normalizeVN(item.name).includes(cleanQ);
-            const matchCode = normalizeVN(item.code).includes(cleanQ);
+            const matchName = normalizeVN(item.name).includes(normQ);
+            const matchCode = normalizeVN(item.code).includes(normQ);
             return matchName || matchCode;
           });
         }
 
         this.selectedIndex = -1;
 
+        // Header status
+        let headerText = '';
+        if (!cleanQ) {
+          headerText = `📋 Danh Sách 38 AM Vùng HCM (Gõ tên để lọc)`;
+        } else {
+          headerText = `🔍 Tìm thấy ${this.filteredItems.length} AM khớp với "${cleanQ}"`;
+        }
+
+        let html = `
+          <div class="px-2.5 py-1.5 text-[11px] font-semibold text-slate-500 dark:text-slate-400 border-b border-slate-100 dark:border-slate-800 mb-1 flex items-center justify-between">
+            <span>${headerText}</span>
+            <span class="text-[10px] text-slate-400">Esc để đóng</span>
+          </div>
+        `;
+
         if (this.filteredItems.length === 0) {
-          const safeQ = String(query).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-          listEl.innerHTML = `
+          const safeQ = String(cleanQ).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+          html += `
             <div class="px-3 py-4 text-center text-xs text-slate-400 dark:text-slate-500">
-              <div class="font-semibold text-slate-600 dark:text-slate-300 mb-1">🔍 Không tìm thấy AM</div>
+              <div class="font-semibold text-slate-600 dark:text-slate-300 mb-1">🔍 Không tìm thấy AM nào</div>
               <div>Không có AM nào khớp với "<strong>${safeQ}</strong>"</div>
+              <div class="text-[11px] text-brand-500 mt-2 cursor-pointer hover:underline" onclick="clearScopeSearch()">Bấm vào đây để xem tất cả AM</div>
             </div>
           `;
+          listEl.innerHTML = html;
           lucide.createIcons();
           return;
         }
 
-        let html = '';
         this.filteredItems.forEach((item, idx) => {
           const isSelected = item.isAll 
             ? (AppState.scopedAM === null) 
@@ -28236,6 +28294,9 @@ const GoogleSheetsSyncService = {
             `;
           } else {
             const initial = (item.name || 'AM').substring(0, 1);
+            const highlightedName = this.highlightMatch(item.name, cleanQ);
+            const highlightedCode = this.highlightMatch(item.code, cleanQ);
+
             html += `
               <div 
                 id="scope-opt-${idx}"
@@ -28247,8 +28308,8 @@ const GoogleSheetsSyncService = {
                     ${initial}
                   </span>
                   <div>
-                    <div class="font-semibold text-slate-900 dark:text-white">${item.name}</div>
-                    <div class="text-[10px] text-slate-400 font-mono">Mã: ${item.code} • ${item.vung}</div>
+                    <div class="font-semibold text-slate-900 dark:text-white">${highlightedName}</div>
+                    <div class="text-[10px] text-slate-400 font-mono">Mã: ${highlightedCode} • ${item.vung}</div>
                   </div>
                 </div>
                 ${isSelected ? '<span class="text-xs text-brand-600 font-bold">✓</span>' : ''}
@@ -28257,13 +28318,21 @@ const GoogleSheetsSyncService = {
           }
         });
 
+        // Helper footer
+        html += `
+          <div class="px-2.5 pt-2 pb-1 text-[10px] text-slate-400 dark:text-slate-500 border-t border-slate-100 dark:border-slate-800 mt-1 flex items-center justify-between">
+            <span>Dùng phím ↑ ↓ để di chuyển, Enter để chọn</span>
+          </div>
+        `;
+
         listEl.innerHTML = html;
         lucide.createIcons();
       },
 
-      open() {
+      open(autoSelect = false) {
         const listEl = document.getElementById('scope-dropdown-list');
         const chevron = document.getElementById('scope-dropdown-chevron');
+        const input = document.getElementById('input-admin-scope');
         if (!listEl) return;
 
         this.buildList();
@@ -28271,15 +28340,23 @@ const GoogleSheetsSyncService = {
         listEl.classList.remove('hidden');
         if (chevron) chevron.style.transform = 'rotate(180deg)';
         this.isOpen = true;
+
+        if (input && autoSelect) {
+          setTimeout(() => {
+            input.select();
+          }, 10);
+        }
       },
 
       close() {
         const listEl = document.getElementById('scope-dropdown-list');
         const chevron = document.getElementById('scope-dropdown-chevron');
+        const clearBtn = document.getElementById('btn-clear-scope-input');
         if (!listEl) return;
 
         listEl.classList.add('hidden');
         if (chevron) chevron.style.transform = 'rotate(0deg)';
+        if (clearBtn) clearBtn.classList.add('hidden');
         this.isOpen = false;
         this.updateInputValue();
       },
@@ -28288,7 +28365,7 @@ const GoogleSheetsSyncService = {
         if (this.isOpen) {
           this.close();
         } else {
-          this.open();
+          this.open(true);
           const input = document.getElementById('input-admin-scope');
           if (input) {
             input.focus();
@@ -28332,7 +28409,7 @@ const GoogleSheetsSyncService = {
 
       navigate(direction) {
         if (!this.isOpen) {
-          this.open();
+          this.open(false);
           return;
         }
         if (this.filteredItems.length === 0) return;
@@ -28369,8 +28446,8 @@ const GoogleSheetsSyncService = {
       }
     };
 
-    function openScopeDropdown() {
-      ScopeCombobox.open();
+    function openScopeDropdown(autoSelect) {
+      ScopeCombobox.open(autoSelect);
     }
 
     function toggleScopeDropdown(e) {
@@ -28378,11 +28455,30 @@ const GoogleSheetsSyncService = {
       ScopeCombobox.toggle();
     }
 
+    function clearScopeSearch(e) {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      const input = document.getElementById('input-admin-scope');
+      if (input) {
+        input.value = '';
+        input.focus();
+        ScopeCombobox.renderList('');
+      }
+      const clearBtn = document.getElementById('btn-clear-scope-input');
+      if (clearBtn) clearBtn.classList.add('hidden');
+    }
+
     function onScopeSearchInput(val) {
       if (!ScopeCombobox.isOpen) {
-        ScopeCombobox.open();
+        ScopeCombobox.open(false);
       }
       ScopeCombobox.renderList(val);
+      const clearBtn = document.getElementById('btn-clear-scope-input');
+      if (clearBtn) {
+        clearBtn.classList.toggle('hidden', !val || val === '🌐 Toàn Vùng HCM (Tất cả 38 AM)');
+      }
     }
 
     function onScopeKeyDown(e) {
@@ -28485,7 +28581,7 @@ const GoogleSheetsSyncService = {
           const nameEl = document.getElementById('user-display-name');
           const roleEl = document.getElementById('user-display-role');
           if (nameEl) nameEl.textContent = user.name || 'Master Admin';
-          if (roleEl) roleEl.textContent = '👑 Quản Trị';
+          if (roleEl) roleEl.textContent = user.title ? `👑 ${user.title}` : '👑 Quản Trị';
         } else if (personalItem) {
           const nameEl = document.getElementById('user-display-name');
           const roleEl = document.getElementById('user-display-role');
@@ -29083,13 +29179,26 @@ const GoogleSheetsSyncService = {
         }
       }
 
+      // Check if this AM has Master View privileges (Giám Đốc Vùng HCM, HRBP Leader, Master Admin)
+      const isMasterAM = (
+        matchedAM.id === '3031315' || normalizeVN(matchedAM.name) === normalizeVN('Nguyễn Văn Tân') ||
+        matchedAM.id === '3054562' || normalizeVN(matchedAM.name) === normalizeVN('Nguyễn Quang Huy') ||
+        matchedAM.id === '210781_admin' || normalizeVN(matchedAM.name) === normalizeVN('Võ Tuấn Anh')
+      );
+
+      const userRole = isMasterAM ? 'admin' : 'am';
+      const defaultTitle = (normalizeVN(matchedAM.name) === normalizeVN('Nguyễn Văn Tân')) 
+        ? 'Giám Đốc Vùng HCM' 
+        : ((normalizeVN(matchedAM.name) === normalizeVN('Nguyễn Quang Huy')) ? 'HRBP Leader HCM' : 'AM Vùng HCM');
+
       const userObj = {
         authenticated: true,
         name: matchedAM.name,
         ma_am: matchedAM.id,
         email: matchedAM.email,
-        role: 'am',
-        scopedAM: matchedAM.name,
+        title: defaultTitle,
+        role: userRole,
+        scopedAM: isMasterAM ? null : matchedAM.name,
         method: '3factor',
         loginTime: new Date().toISOString()
       };
@@ -29104,7 +29213,7 @@ const GoogleSheetsSyncService = {
       } catch(err) {}
 
       AppState.currentUser = userObj;
-      AppState.scopedAM = matchedAM.name;
+      AppState.scopedAM = isMasterAM ? null : matchedAM.name;
 
       try {
         logAuditEvent(userObj.name, `Đăng nhập cá nhân thành công qua xác thực 3 yếu tố (Mã: ${matchedAM.id})`, 'success');
@@ -29115,7 +29224,11 @@ const GoogleSheetsSyncService = {
         triggerConfetti();
       } catch(err) {}
 
-      showToast(`Xin chào ${matchedAM.name}! Đã mở bảng số liệu cá nhân của bạn.`, 'success');
+      if (isMasterAM) {
+        showToast(`Xin chào ${matchedAM.name} (${defaultTitle})! Đã mở quyền Quản trị Master View toàn vùng.`, 'success');
+      } else {
+        showToast(`Xin chào ${matchedAM.name}! Đã mở bảng số liệu cá nhân của bạn.`, 'success');
+      }
       unlockDashboard(userObj);
     }
 
@@ -29133,7 +29246,11 @@ const GoogleSheetsSyncService = {
       let adminName = 'Võ Tuấn Anh';
       let adminTitle = 'Quản Trị Viên';
 
-      const validUsernames = ['votuananh', 'admin', 'anhvt', 'hr', 'nguyenvantan', 'giamdocvung', 'gdv.hcm', 'gdv', 'nguyenquanghuy', 'hrbp.leader', 'hrbp.hcm', 'hrbpleader', 'hrbp'];
+      const validUsernames = [
+        'votuananh', 'admin', 'anhvt', 'hr',
+        'nguyenvantan', '3031315', 'tannv1', 'tannv1@ghn.vn', 'giamdocvung', 'gdv.hcm', 'gdv',
+        'nguyenquanghuy', '3054562', 'huynq1', 'huynq1@ghn.vn', 'hrbp.leader', 'hrbp.hcm', 'hrbpleader', 'hrbp'
+      ];
       const defaultPasswords = ['Hrteam123123@', 'hrteam123123@', 'am2026', 'hcm@2026', 'gdv@hcm2026', 'TAdeptrai@2026', 'hrbp@hcm2026', '123456', 'votuananh'];
 
       const acc = MASTER_ACCOUNTS[rawUser];
