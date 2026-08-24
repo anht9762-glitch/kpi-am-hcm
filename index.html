@@ -1879,6 +1879,10 @@
                   <i data-lucide="key" class="w-3 h-3"></i>
                   Cấp 123456 Hàng Loạt
                 </button>
+                <button type="button" onclick="resetAllAmPins()" title="Xóa và reset toàn bộ mã PIN của 38 AM để AM tự tạo lại" class="px-2 py-1 text-[11px] font-semibold rounded-lg bg-rose-100 hover:bg-rose-200 dark:bg-rose-950/80 dark:hover:bg-rose-900 text-rose-800 dark:text-rose-200 border border-rose-300 dark:border-rose-800 transition flex items-center gap-1 whitespace-nowrap">
+                  <i data-lucide="rotate-ccw" class="w-3 h-3"></i>
+                  Reset Tất Cả (38 PIN)
+                </button>
                 <button type="button" onclick="exportAmPins()" title="Sao chép toàn bộ mã PIN ra JSON" class="px-2 py-1 text-[11px] font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 transition flex items-center gap-1 whitespace-nowrap">
                   <i data-lucide="download" class="w-3 h-3"></i>
                   Sao Lưu
@@ -29058,22 +29062,26 @@ const GoogleSheetsSyncService = {
         if (res.ok) {
           const remoteData = await res.json();
           const remotePins = (remoteData && remoteData.pins) ? remoteData.pins : remoteData;
+          const remoteTime = (remoteData && remoteData.updatedAt) ? new Date(remoteData.updatedAt).getTime() : 0;
+          const localTime = localStorage.getItem('hcm_bi_pins_updated_at') ? new Date(localStorage.getItem('hcm_bi_pins_updated_at')).getTime() : 0;
+
+          // If local was updated more recently (e.g. admin just reset PINs), push local to cloud instead of re-importing old cloud PINs
+          if (localTime > remoteTime) {
+            syncAmPinsToCloud();
+            return;
+          }
+
           if (remotePins && typeof remotePins === 'object') {
-            const localData = getAmPinsData();
-            let hasNew = false;
+            const cleaned = {};
             for (const k in remotePins) {
-              if (remotePins[k] && remotePins[k].pin) {
-                if (!localData[k] || localData[k].pin !== remotePins[k].pin) {
-                  localData[k] = remotePins[k];
-                  hasNew = true;
-                }
+              const item = remotePins[k];
+              if (item && item.pin && typeof item.pin === 'string' && item.pin.length >= 4) {
+                cleaned[k] = item;
               }
             }
-            if (hasNew) {
-              localStorage.setItem('hcm_bi_am_pins', JSON.stringify(localData));
-              renderAmPinManagementList();
-              checkAmPinStatus();
-            }
+            saveAmPinsData(cleaned);
+            renderAmPinManagementList();
+            checkAmPinStatus();
             lastCloudSyncTime = new Date();
             updateCloudSyncBadge();
             if (!silent) showToast('☁️ Đã đồng bộ mã PIN từ đám mây thành công!', 'success');
@@ -29120,14 +29128,18 @@ const GoogleSheetsSyncService = {
 
     function getAmPinsData() {
       try {
-        return JSON.parse(localStorage.getItem('hcm_bi_am_pins') || '{}');
+        const raw = localStorage.getItem('hcm_bi_am_pins');
+        if (!raw) return {};
+        const parsed = JSON.parse(raw);
+        if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return {};
+        return parsed;
       } catch(e) {
         return {};
       }
     }
 
     function saveAmPinsData(data) {
-      localStorage.setItem('hcm_bi_am_pins', JSON.stringify(data));
+      localStorage.setItem('hcm_bi_am_pins', JSON.stringify(data || {}));
     }
 
     function getAmPinRecord(amCode, amName, amEmail) {
@@ -29136,11 +29148,13 @@ const GoogleSheetsSyncService = {
       const norm = amName ? normalizeVN(amName) : '';
       const cleanEmail = String(amEmail || '').trim().toLowerCase();
 
-      if (cleanCode && pins[cleanCode] && pins[cleanCode].pin) return pins[cleanCode];
+      if (cleanCode && pins[cleanCode] && typeof pins[cleanCode].pin === 'string' && pins[cleanCode].pin.length >= 4) {
+        return pins[cleanCode];
+      }
 
       for (const k in pins) {
         const item = pins[k];
-        if (!item || !item.pin) continue;
+        if (!item || !item.pin || typeof item.pin !== 'string' || item.pin.length < 4) continue;
         if (String(k).trim() === cleanCode) return item;
         if (norm && item.normName === norm) return item;
         if (cleanEmail && item.email && item.email.toLowerCase() === cleanEmail) return item;
@@ -29160,6 +29174,7 @@ const GoogleSheetsSyncService = {
         createdAt: new Date().toISOString()
       };
       saveAmPinsData(pins);
+      localStorage.setItem('hcm_bi_pins_updated_at', new Date().toISOString());
       renderAmPinManagementList();
       checkAmPinStatus();
       syncAmPinsToCloud();
@@ -29190,21 +29205,35 @@ const GoogleSheetsSyncService = {
       const pins = getAmPinsData();
       const cleanCode = String(amCode || '').trim();
       const norm = amName ? normalizeVN(amName) : '';
-      if (pins[cleanCode]) {
-        delete pins[cleanCode];
-      }
+      
+      delete pins[cleanCode];
       for (const k in pins) {
-        if (pins[k] && pins[k].normName === norm) {
+        if (pins[k] && (pins[k].normName === norm || String(k).trim() === cleanCode)) {
           delete pins[k];
         }
       }
       saveAmPinsData(pins);
+      localStorage.setItem('hcm_bi_pins_updated_at', new Date().toISOString());
       showToast(`Đã đặt lại mã PIN cho AM: ${amName}. Ở lần đăng nhập tới, AM sẽ tự đặt lại mã PIN mới.`, 'info');
       renderAmPinManagementList();
       checkAmPinStatus();
       syncAmPinsToCloud();
       try {
         logAuditEvent('Admin', `Reset mã PIN cho AM ${amName} (Mã: ${amCode})`, 'warning');
+      } catch(err) {}
+    }
+
+    function resetAllAmPins() {
+      if (!confirm('Bạn có chắc chắn muốn RESET MÃ PIN của TOÀN BỘ 38 AM? Sau khi reset, tất cả AM sẽ được yêu cầu tạo mã PIN mới khi đăng nhập.')) return;
+      saveAmPinsData({});
+      localStorage.setItem('hcm_bi_pins_updated_at', new Date().toISOString());
+      renderAmPinManagementList();
+      checkAmPinStatus();
+      syncAmPinsToCloud();
+      showToast('🔄 Đã xóa & reset toàn bộ mã PIN của 38 AM thành công! Tất cả AM sẽ tự tạo mã PIN mới khi đăng nhập.', 'success');
+      try {
+        logAuditEvent('Admin', 'Reset toàn bộ mã PIN của tất cả 38 AM', 'warning');
+        sendAdminLoginNotification('admin-reset-all@system.local', '🔄 ADMIN ĐÃ RESET TOÀN BỘ MÃ PIN CỦA TẤT CẢ 38 AM');
       } catch(err) {}
     }
 
@@ -29226,6 +29255,7 @@ const GoogleSheetsSyncService = {
         }
       });
       saveAmPinsData(pins);
+      localStorage.setItem('hcm_bi_pins_updated_at', new Date().toISOString());
       renderAmPinManagementList();
       checkAmPinStatus();
       syncAmPinsToCloud();
@@ -29261,6 +29291,7 @@ const GoogleSheetsSyncService = {
         const current = getAmPinsData();
         const merged = Object.assign({}, current, parsed);
         saveAmPinsData(merged);
+        localStorage.setItem('hcm_bi_pins_updated_at', new Date().toISOString());
         renderAmPinManagementList();
         checkAmPinStatus();
         syncAmPinsToCloud();
