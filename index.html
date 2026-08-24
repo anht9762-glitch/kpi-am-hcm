@@ -720,15 +720,15 @@
             </div>
 
             <!-- Admin Scope Switcher (Searchable Combobox for Admin) -->
-            <div id="admin-scope-container" class="hidden relative inline-block text-left" style="min-width: 360px; max-width: 490px;">
+            <div id="admin-scope-container" class="hidden relative inline-block text-left" style="min-width: 440px; max-width: 560px;">
               <div class="flex items-center gap-2">
-                <span class="text-xs font-bold text-slate-600 dark:text-slate-300 whitespace-nowrap flex items-center gap-1.5">
+                <span class="text-xs font-bold text-slate-600 dark:text-slate-300 whitespace-nowrap flex items-center gap-1.5 flex-shrink-0">
                   <i data-lucide="filter" class="w-4 h-4 text-brand-500"></i>
                   Chế độ xem:
                 </span>
                 
                 <!-- Searchable Combobox Wrapper -->
-                <div class="relative flex-1" id="scope-combobox-wrapper">
+                <div class="relative w-[340px] sm:w-[390px] md:w-[430px]" id="scope-combobox-wrapper">
                   <div class="relative flex items-center">
                     <input 
                       id="input-admin-scope" 
@@ -737,7 +737,7 @@
                       spellcheck="false"
                       placeholder="Gõ tên hoặc mã AM..."
                       value="🌐 Toàn Vùng HCM (Tất cả AM)"
-                      class="w-full bg-brand-50 dark:bg-brand-950/80 text-brand-800 dark:text-brand-200 text-xs sm:text-[13px] font-bold rounded-xl pl-3.5 pr-14 py-2 border border-brand-300 dark:border-brand-800 focus:ring-2 focus:ring-brand-500 focus:outline-none transition shadow-sm cursor-text placeholder:text-slate-400 placeholder:font-normal"
+                      class="w-full bg-brand-50 dark:bg-brand-950/80 text-brand-800 dark:text-brand-200 text-xs sm:text-[13px] font-bold rounded-xl pl-3.5 pr-9 py-2 border border-brand-300 dark:border-brand-800 focus:ring-2 focus:ring-brand-500 focus:outline-none transition shadow-sm cursor-text placeholder:text-slate-400 placeholder:font-normal"
                       onfocus="openScopeDropdown(true)"
                       onclick="openScopeDropdown(true)"
                       oninput="onScopeSearchInput(this.value)"
@@ -749,7 +749,7 @@
                       id="btn-clear-scope-input"
                       type="button" 
                       onclick="clearScopeSearch(event)" 
-                      class="hidden absolute right-7 p-1 rounded hover:bg-brand-200/60 dark:hover:bg-brand-900 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition text-xs font-bold"
+                      class="hidden absolute right-6 p-1 rounded hover:bg-brand-200/60 dark:hover:bg-brand-900 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition text-xs font-bold"
                       title="Xóa tìm kiếm"
                     >
                       ✕
@@ -761,7 +761,7 @@
                       type="button" 
                       onclick="toggleScopeDropdown(event)" 
                       tabindex="-1"
-                      class="absolute right-1.5 p-1 rounded-lg hover:bg-brand-100 dark:hover:bg-brand-900 text-brand-600 dark:text-brand-400 transition"
+                      class="absolute right-1 p-1 rounded-lg hover:bg-brand-100 dark:hover:bg-brand-900 text-brand-600 dark:text-brand-400 transition"
                       title="Mở danh sách AM"
                     >
                       <i id="scope-dropdown-chevron" data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-150"></i>
@@ -29952,8 +29952,8 @@ Chi tiết kỹ thuật: ${resData.description}`);
       return Math.round(num).toLocaleString('vi-VN') + ' ₫';
     }
 
-    function formatPercent(num, decimals = 1) {
-      if (num === null || num === undefined || isNaN(num)) return '0.0%';
+    function formatPercent(num, decimals = 2) {
+      if (num === null || num === undefined || isNaN(num)) return '0.00%';
       return (num * 100).toFixed(decimals) + '%';
     }
 
@@ -30124,7 +30124,7 @@ Chi tiết kỹ thuật: ${resData.description}`);
         } else {
           const delta = item.chenh_lech || 0;
           const deltaPercent = item.thang_truoc ? (delta / item.thang_truoc) * 100 : 0;
-          document.getElementById('kpi-mom-text').textContent = (delta >= 0 ? '+' : '') + deltaPercent.toFixed(1) + '%';
+          document.getElementById('kpi-mom-text').textContent = (delta >= 0 ? '+' : '') + deltaPercent.toFixed(2) + '%';
           document.getElementById('kpi-mom-badge').className = `inline-flex items-center px-1.5 py-0.5 rounded font-medium whitespace-nowrap ${
             delta >= 0 ? 'text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60' : 'text-rose-700 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/60'
           }`;
@@ -30138,7 +30138,7 @@ Chi tiết kỹ thuật: ${resData.description}`);
 
         // Card 3: KPI Vận Hành Cá Nhân
         document.getElementById('card3-title').textContent = isAll ? 'KPI Vận Hành TB Toàn Kỳ' : 'Tỷ Lệ KPI Vận Hành';
-        document.getElementById('kpi-avg-ops').textContent = formatPercent(item.kpi_van_hanh);
+        document.getElementById('kpi-avg-ops').textContent = formatPercent(item.kpi_van_hanh, 2);
         document.getElementById('kpi-avg-ops-bar').style.width = Math.min(100, (item.kpi_van_hanh || 0) * 100) + '%';
         
         let grade = '🏆 Xuất sắc (≥98%)';
@@ -30151,8 +30151,8 @@ Chi tiết kỹ thuật: ${resData.description}`);
         const bizRatio = totalComm > 0 ? ((item.hh_kd || 0) / totalComm) * 100 : 0;
         const opsRatio = totalComm > 0 ? ((item.hh_vh || 0) / totalComm) * 100 : 0;
 
-        document.getElementById('kpi-biz-ratio').textContent = bizRatio.toFixed(1) + '%';
-        document.getElementById('kpi-ops-ratio').textContent = opsRatio.toFixed(1) + '%';
+        document.getElementById('kpi-biz-ratio').textContent = bizRatio.toFixed(2) + '%';
+        document.getElementById('kpi-ops-ratio').textContent = opsRatio.toFixed(2) + '%';
         document.getElementById('kpi-split-biz-bar').style.width = bizRatio + '%';
         document.getElementById('kpi-split-ops-bar').style.width = opsRatio + '%';
 
@@ -30209,7 +30209,7 @@ Chi tiết kỹ thuật: ${resData.description}`);
           if (totalPrevFund > 0) {
             momPercent = ((totalFund - totalPrevFund) / totalPrevFund) * 100;
           }
-          document.getElementById('kpi-mom-text').textContent = (momPercent >= 0 ? '+' : '') + momPercent.toFixed(1) + '%';
+          document.getElementById('kpi-mom-text').textContent = (momPercent >= 0 ? '+' : '') + momPercent.toFixed(2) + '%';
           document.getElementById('kpi-mom-badge').className = `inline-flex items-center px-1.5 py-0.5 rounded font-medium whitespace-nowrap ${
             momPercent >= 0 ? 'text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60' : 'text-rose-700 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/60'
           }`;
@@ -30221,12 +30221,12 @@ Chi tiết kỹ thuật: ${resData.description}`);
         document.getElementById('kpi-income-range').textContent = isAll ? `TB: ${formatVND(avgIncome / 7)}/tháng` : `${(minIncome/1e6).toFixed(1)}M - ${(maxIncome/1e6).toFixed(1)}M`;
 
         document.getElementById('card3-title').textContent = isAll ? 'KPI Vận Hành TB Toàn Kỳ' : 'KPI Vận Hành TB Vùng';
-        document.getElementById('kpi-avg-ops').textContent = (avgOpsKPI * 100).toFixed(1) + '%';
+        document.getElementById('kpi-avg-ops').textContent = (avgOpsKPI * 100).toFixed(2) + '%';
         document.getElementById('kpi-avg-ops-bar').style.width = Math.min(100, avgOpsKPI * 100) + '%';
         document.getElementById('card3-sub').innerHTML = `Đạt chuẩn: <strong id="kpi-excellent-count" class="text-emerald-600 dark:text-emerald-400">${excellentCount}</strong> AM (≥98%)`;
 
-        document.getElementById('kpi-biz-ratio').textContent = bizRatio.toFixed(1) + '%';
-        document.getElementById('kpi-ops-ratio').textContent = opsRatio.toFixed(1) + '%';
+        document.getElementById('kpi-biz-ratio').textContent = bizRatio.toFixed(2) + '%';
+        document.getElementById('kpi-ops-ratio').textContent = opsRatio.toFixed(2) + '%';
         document.getElementById('kpi-split-biz-bar').style.width = bizRatio + '%';
         document.getElementById('kpi-split-ops-bar').style.width = opsRatio + '%';
 
@@ -30586,7 +30586,7 @@ Chi tiết kỹ thuật: ${resData.description}`);
           if (countVal > 0) {
             if (/Mục tiêu|Thực đạt|Tỷ lệ|KPI/i.test(col) && !/kinh doanh|vận hành|thực đạt tháng|Số lượng|NV|Ngày công/i.test(col)) {
               const avg = totalVal / countVal;
-              cellFoot = `TB: ${(avg * 100).toFixed(1)}%`;
+              cellFoot = `TB: ${(avg * 100).toFixed(2)}%`;
             } else if (/Thưởng|Lương|Hoa hồng|TỔNG|Chi|Bổ sung/i.test(col)) {
               cellFoot = formatVND(totalVal);
             } else if (/Ngày công|Số lượng NV|Mục tiêu NV/i.test(col)) {
@@ -31148,35 +31148,37 @@ Chi tiết kỹ thuật: ${resData.description}`);
       const tiktokKpi = (am.tiktok_kpi !== undefined ? am.tiktok_kpi : 1.0) * 100;
       const fdiKpi = (am.fdi_kpi !== undefined ? am.fdi_kpi : 1.0) * 100;
       const retKpi = (am.retention_kpi !== undefined ? am.retention_kpi : 0.93) * 100;
-      const opsKpi = (am.kpi_van_hanh !== undefined ? am.kpi_van_hanh : 1.0) * 100;
+      const opsKpi = (am.kpi_van_hanh !== undefined ? am.kpi_van_hanh : (gtcKpi + tiktokKpi + fdiKpi + retKpi) / 400) * 100;
 
       const gtcRew = am.hh_gtc || 0;
       const ltcRew = am.hh_ltc || 0;
       const soRew = am.hh_so || am.hh_kd || 0;
       const baseSalary = am.luong_cb || 20000000;
-      const bcCount = am.so_luong_bc || 0;
+      const phuCap = am.phu_cap || 0;
+      const bcCount = am.so_luong_bc !== undefined ? am.so_luong_bc : (phuCap > 0 ? Math.round(phuCap / 2000000) : 0);
+      const actualTotal = am.tong_hh || (baseSalary + (am.chi_k20 || 0));
 
       // 1. Set Actual columns in Table 1
       const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-      setTxt('sim-act-gtc', gtcKpi.toFixed(1) + '%');
-      setTxt('sim-act-tiktok', tiktokKpi.toFixed(1) + '%');
-      setTxt('sim-act-fdi', fdiKpi.toFixed(1) + '%');
-      setTxt('sim-act-retention', retKpi.toFixed(1) + '%');
-      setTxt('sim-act-opskpi', opsKpi.toFixed(1) + '%');
+      setTxt('sim-act-gtc', gtcKpi.toFixed(2) + '%');
+      setTxt('sim-act-tiktok', tiktokKpi.toFixed(2) + '%');
+      setTxt('sim-act-fdi', fdiKpi.toFixed(2) + '%');
+      setTxt('sim-act-retention', retKpi.toFixed(2) + '%');
+      setTxt('sim-act-opskpi', opsKpi.toFixed(2) + '%');
 
       setTxt('sim-act-gtc-rew', formatVND(gtcRew));
       setTxt('sim-act-ltc-rew', formatVND(ltcRew));
       setTxt('sim-act-so-rew', formatVND(soRew));
       setTxt('sim-act-base', formatVND(baseSalary));
       setTxt('sim-act-bc', bcCount.toString());
-      setTxt('sim-act-total', formatVND(am.tong_hh || (gtcRew + ltcRew + soRew + baseSalary)));
+      setTxt('sim-act-total', formatVND(actualTotal));
 
       // 2. Set Default inputs in Table 1
       const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
-      setVal('sim-in-gtc', gtcKpi.toFixed(1));
-      setVal('sim-in-tiktok', tiktokKpi.toFixed(1));
-      setVal('sim-in-fdi', fdiKpi.toFixed(1));
-      setVal('sim-in-retention', retKpi.toFixed(1));
+      setVal('sim-in-gtc', gtcKpi.toFixed(2));
+      setVal('sim-in-tiktok', tiktokKpi.toFixed(2));
+      setVal('sim-in-fdi', fdiKpi.toFixed(2));
+      setVal('sim-in-retention', retKpi.toFixed(2));
 
       setVal('sim-in-gtc-rew', gtcRew);
       setVal('sim-in-ltc-rew', ltcRew);
@@ -31320,21 +31322,22 @@ Chi tiết kỹ thuật: ${resData.description}`);
       const actTikTok = (am.tiktok_kpi !== undefined ? am.tiktok_kpi : 1.0) * 100;
       const actFDI = (am.fdi_kpi !== undefined ? am.fdi_kpi : 1.0) * 100;
       const actRet = (am.retention_kpi !== undefined ? am.retention_kpi : 0.93) * 100;
-      const actOpsKpi = (am.kpi_van_hanh !== undefined ? am.kpi_van_hanh : 1.0) * 100;
+      const actOpsKpi = (am.kpi_van_hanh !== undefined ? am.kpi_van_hanh : (actGTC + actTikTok + actFDI + actRet) / 400) * 100;
 
       const actGtcRew = am.hh_gtc || 0;
       const actLtcRew = am.hh_ltc || 0;
       const actSoRew = am.hh_so || am.hh_kd || 0;
       const actBase = am.luong_cb || 20000000;
-      const actBC = am.so_luong_bc || 0;
-      const actTotal = am.tong_hh || (actGtcRew + actLtcRew + actSoRew + actBase);
+      const actPhuCap = am.phu_cap || 0;
+      const actBC = am.so_luong_bc !== undefined ? am.so_luong_bc : (actPhuCap > 0 ? Math.round(actPhuCap / 2000000) : 0);
+      const actTotal = am.tong_hh || (actBase + (am.chi_k20 || 0));
 
       // Delta calculations for 10 fields
       const formatDiffPct = (simVal, actVal) => {
         const diff = simVal - actVal;
         const sign = diff > 0 ? '+' : '';
         const color = Math.abs(diff) < 0.01 ? 'text-slate-400' : (diff > 0 ? 'text-emerald-400' : 'text-rose-400');
-        return `<span class="${color}">${sign}${diff.toFixed(1)}%</span>`;
+        return `<span class="${color}">${sign}${diff.toFixed(2)}%</span>`;
       };
       const formatDiffVND = (simVal, actVal) => {
         const diff = simVal - actVal;
@@ -31352,7 +31355,7 @@ Chi tiết kỹ thuật: ${resData.description}`);
       // Calculate Ops KPI using CalculationEngine:
       const simOpsKpi = CalculationEngine.calculateOperationKPI(inGTC / 100, inTikTok / 100, inFDI / 100, inRet / 100) * 100;
       const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-      setTxt('sim-val-opskpi', simOpsKpi.toFixed(1) + '%');
+      setTxt('sim-val-opskpi', simOpsKpi.toFixed(2) + '%');
       setHTML('sim-diff-opskpi', formatDiffPct(simOpsKpi, actOpsKpi));
 
       setHTML('sim-diff-gtc-rew', formatDiffVND(inGtcRew, actGtcRew));
@@ -31365,9 +31368,36 @@ Chi tiết kỹ thuật: ${resData.description}`);
       const colorBC = diffBC === 0 ? 'text-slate-400' : (diffBC > 0 ? 'text-emerald-400' : 'text-rose-400');
       setHTML('sim-diff-bc', `<span class="${colorBC}">${signBC}${diffBC}</span>`);
 
-      // Total Simulated Salary from CalculationEngine
-      const bcAllowance = inBC * 2000000;
-      const simTotal = inGtcRew + inLtcRew + inSoRew + inBase + (am.offer || 0) + (am.bo_sung || 0) + (inBC > 0 ? bcAllowance : (am.phu_cap || 0));
+      // 1. Commission earned = (Thưởng DT GTC + Thưởng DT LTC + Thưởng DT SO) * (simOpsKpi / 100)
+      const totalDtRew = inGtcRew + inLtcRew + inSoRew;
+      const simCommission = Math.round(totalDtRew * (simOpsKpi / 100));
+
+      // 2. Allowance calculation:
+      const bcAllowance = inBC > 0 ? (inBC * 2000000) : (inBC === actBC ? actPhuCap : 0);
+
+      // 3. Total Simulated Salary:
+      const isBaseline = (
+        Math.abs(inGTC - actGTC) < 0.05 &&
+        Math.abs(inTikTok - actTikTok) < 0.05 &&
+        Math.abs(inFDI - actFDI) < 0.05 &&
+        Math.abs(inRet - actRet) < 0.05 &&
+        Math.abs(inGtcRew - actGtcRew) < 1 &&
+        Math.abs(inLtcRew - actLtcRew) < 1 &&
+        Math.abs(inSoRew - actSoRew) < 1 &&
+        Math.abs(inBase - actBase) < 1 &&
+        inBC === actBC
+      );
+
+      let simTotal;
+      if (isBaseline && actTotal > 0) {
+        simTotal = actTotal;
+      } else {
+        const baselineActualComm = Math.round((actGtcRew + actLtcRew + actSoRew) * (actOpsKpi / 100));
+        const commDelta = simCommission - baselineActualComm;
+        const baseDelta = inBase - actBase;
+        const bcDelta = bcAllowance - actPhuCap;
+        simTotal = actTotal + commDelta + baseDelta + bcDelta;
+      }
 
       setTxt('sim-res-total', formatVND(simTotal));
       setTxt('sim-act-total', formatVND(actTotal));
@@ -31378,7 +31408,7 @@ Chi tiết kỹ thuật: ${resData.description}`);
 
       const deltaBadge = document.getElementById('sim-res-delta-badge');
       if (deltaBadge) {
-        deltaBadge.textContent = `${deltaSign}${deltaPct.toFixed(1)}%`;
+        deltaBadge.textContent = `${deltaSign}${deltaPct.toFixed(2)}%`;
         deltaBadge.className = `text-xs font-bold font-mono px-2 py-0.5 rounded whitespace-nowrap ${deltaTotal >= 0 ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'}`;
       }
       const deltaAmt = document.getElementById('sim-res-delta-amount');
