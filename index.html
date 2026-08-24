@@ -28109,38 +28109,45 @@ const GoogleSheetsSyncService = {
       const currentList = getCurrentMonthData();
       if (!currentList.length) return null;
 
-      const userCode = AppState.currentUser ? String(AppState.currentUser.ma_am || '').trim() : '';
-      const userName = AppState.currentUser ? normalizeVN(AppState.currentUser.name || '') : '';
       const scoped = AppState.scopedAM ? String(AppState.scopedAM).trim() : '';
       const normScoped = normalizeVN(scoped);
 
-      // 1. Precise Match by Employee ID (Mã AM)
+      // 1. Prioritize explicit scopedAM (when Admin selects an AM via Combobox)
+      if (scoped) {
+        // Match by AM Code / ID
+        let found = currentList.find(i => String(i.ma_am || '').trim() === scoped);
+        if (found) return found;
+
+        // Match by Exact Name
+        found = currentList.find(i => normalizeVN(i.ten_am) === normScoped);
+        if (found) return found;
+
+        // Match by Partial Name
+        found = currentList.find(i => {
+          const iName = normalizeVN(i.ten_am);
+          return iName.includes(normScoped) || normScoped.includes(iName);
+        });
+        if (found) return found;
+      }
+
+      // 2. Fallback to logged-in AM user
+      const userCode = AppState.currentUser ? String(AppState.currentUser.ma_am || '').trim() : '';
+      const userName = AppState.currentUser ? normalizeVN(AppState.currentUser.name || '') : '';
+
       if (userCode) {
         const found = currentList.find(i => String(i.ma_am || '').trim() === userCode);
         if (found) return found;
       }
-      if (scoped) {
-        const found = currentList.find(i => String(i.ma_am || '').trim() === scoped);
-        if (found) return found;
-      }
 
-      // 2. Match by Exact Name
       if (userName) {
         const found = currentList.find(i => normalizeVN(i.ten_am) === userName);
         if (found) return found;
-      }
-      if (normScoped) {
-        const found = currentList.find(i => normalizeVN(i.ten_am) === normScoped);
-        if (found) return found;
-      }
 
-      // 3. Fallback partial match
-      if (userName) {
-        const found = currentList.find(i => {
+        const partial = currentList.find(i => {
           const iName = normalizeVN(i.ten_am);
           return iName.includes(userName) || userName.includes(iName);
         });
-        if (found) return found;
+        if (partial) return partial;
       }
 
       return currentList[0] || null;
